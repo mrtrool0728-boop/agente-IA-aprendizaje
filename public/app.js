@@ -2123,8 +2123,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       const saved = chosen && voiceCache.find(v => v.name === chosen);
       if (saved) return saved;
       // 2) Por defecto, "Google español": la más fluida y la que menos suena a robot
-      const google = voiceCache.find(v => /google español de estados unidos/i.test(v.name))
-        || voiceCache.find(v => /google español/i.test(v.name));
+      const google = defaultSpanishVoice();
       if (google) return google;
       // 3) Si el personaje habla con una voz multilingüe, la misma voz dice el español
       if (characterVoice && MULTILINGUAL_VOICE.test(characterVoice.name)) return characterVoice;
@@ -2159,10 +2158,23 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const voiceEsSelect = document.getElementById('voice-es-select');
   const btnTestVoiceEs = document.getElementById('btn-test-voice-es');
 
+  // Voz en español por defecto: "Google español" (elección de la dueña)
+  function defaultSpanishVoice() {
+    return voiceCache.find(v => /^google español$/i.test(v.name.trim()))
+      || voiceCache.find(v => /google español/i.test(v.name));
+  }
+
   function fillVoiceSelect() {
     if (!voiceEsSelect) return;
     loadVoices();
-    const chosen = localStorage.getItem(VOICE_ES_KEY) || '';
+    let chosen = '';
+    try { chosen = localStorage.getItem(VOICE_ES_KEY) || ''; } catch (e) { /* sin almacenamiento */ }
+    // Si nunca eligió una voz, queda "Google español" seleccionada y guardada desde el inicio
+    const google = defaultSpanishVoice();
+    if (!chosen && google) {
+      chosen = google.name;
+      try { localStorage.setItem(VOICE_ES_KEY, chosen); } catch (e) { /* sin almacenamiento */ }
+    }
     // Primero las naturales y multilingües, luego las básicas
     const usable = voiceCache
       .filter(v => v.lang.toLowerCase().startsWith('es') || MULTILINGUAL_VOICE.test(v.name))
