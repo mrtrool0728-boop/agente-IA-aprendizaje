@@ -66,6 +66,7 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
   - La voz va con `speakSequence`: el español se dice con voz en español y las frases del idioma meta con su voz. Nunca mezcles las dos en una sola frase.
   - Los subtítulos y las respuestas sugeridas van en filas separadas, sin `position: absolute` encima del video.
   - El tutor guarda su propia historia (`callHistory`) para que la conversación avance.
+- **Acceso por invitación:** `public/gate.js` muestra la pantalla de código si `public/gate-config.js` tiene la URL del Apps Script (`acceso-gmail/`). El código llega al Gmail de la dueña. Con la URL vacía, la página se abre sin código.
 - **Íconos:** solo los SVG de `index.html` (`<svg class="ico"><use href="#i-…"/></svg>`).
 
 **Prohibido:** emojis como íconos, fondos oscuros con neón, degradados en texto, efecto vidrio, bordes gruesos de color a un lado de tarjetas.
