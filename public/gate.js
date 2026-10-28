@@ -17,7 +17,7 @@
     <div class="gate-card">
       <div class="gate-logo">Con <span>Yesion</span> Aprendes</div>
       <h1 id="gate-title">Acceso por invitación</h1>
-      <p class="gate-text">La página está en lanzamiento. Pide un código: le llega a la administradora y ella te lo comparte.</p>
+      <p class="gate-text">La página está en lanzamiento. Pide un código: le llega al administrador y él te lo comparte.</p>
 
       <form class="gate-step" id="gate-ask">
         <label class="gate-field">
@@ -67,7 +67,7 @@
       $('gate-ask').hidden = true;
       $('gate-enter').hidden = false;
       $('gate-code').focus();
-      status('Listo. Pídele el código a la administradora; vence en 10 minutos.', true);
+      status('Listo. Pídele el código al administrador; vence en 10 minutos.', true);
     } catch (err) {
       status('No hay conexión con el servicio de códigos. Revisa tu internet e intenta de nuevo.');
     } finally {
