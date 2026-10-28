@@ -1223,6 +1223,9 @@ select:focus, input:focus { outline: 0; border-color: var(--brand); box-shadow: 
 .voice-row { display: flex; gap: 8px; }
 .settings-section { margin: 18px 0 4px; font-size: 1rem; font-weight: 700; color: var(--ink); }
 .azure-row { display: grid; grid-template-columns: 1fr 140px; gap: 10px; }
+.check-row { display: flex; align-items: flex-start; gap: 10px; margin: 6px 0 4px; font-size: 0.92rem; color: var(--ink-2); cursor: pointer; }
+.check-row input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand); flex: none; }
+.check-row small { display: block; color: var(--ink-3); font-size: 0.8rem; }
 @media (max-width: 480px) { .azure-row { grid-template-columns: 1fr; } }
 .voice-row select { flex: 1; min-width: 0; }
 

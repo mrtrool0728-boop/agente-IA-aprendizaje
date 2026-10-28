@@ -33,7 +33,10 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
 - **Idiomas en dos pasos:** primero banderas + situaciones (`#lang-picker`), luego el chat (`#lang-chat`). Los `<select>` ocultos `#lang-select` y `#scenario-select` guardan la elección; no los borres.
 - **La corrección va debajo de la frase del estudiante** (`renderLiveFeedback`).
 - **Videollamada:**
-  - El avatar es 3D, con [TalkingHead](https://github.com/met4citizen/TalkingHead) 1.7.0 y three.js, y vive en `public/avatar3d.js`.
+  - Por defecto el avatar es el de las tarjetas (DiceBear) animado: mueve la boca, parpadea y se balancea. Funciona en cualquier equipo.
+    - `avatarTraits()` en `app.js` usa peinados de mujer o de hombre según `FEMALE_NAMES`, sin canas.
+  - El 3D es opcional (Configuración, clave `omni_tutor_avatar3d`), porque en algunas tarjetas de video se ve incompleto.
+  - El avatar 3D usa [TalkingHead](https://github.com/met4citizen/TalkingHead) 1.7.0 y three.js, y vive en `public/avatar3d.js`.
     - Los modelos están en `public/avatars/` (`avaturn.glb` para mujeres y `avatarsdk.glb` para hombres). Su licencia es de uso no comercial: si el proyecto se vuelve comercial, hay que reemplazarlos.
     - Los labios se mueven palabra por palabra con la voz del navegador (`lipSync` en `app.js`).
     - Si el 3D no carga, se ve el avatar 2D de respaldo.

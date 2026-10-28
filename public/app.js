@@ -111,10 +111,22 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const flagUrl = (code) => `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${code}.svg`;
-  const avatarUrl = (seed, bg) => `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited&facialHairProbability=0&accessoriesProbability=20&clothing=collarAndSweater,shirtCrewNeck,blazerAndShirt`;
+  // Rasgos según el género del personaje: peinados de mujer o de hombre y pelo de colores naturales (sin canas)
+  const FEMALE_NAMES = ['Emma', 'Sarah', 'Amélie', 'Chloé', 'Claudia', 'Giulia', 'Sofia', 'Sakura'];
+  const HAIR_F = 'bob,bun,curly,curvy,longButNotTooLong,miaWallace,straight01,straight02,straightAndStrand,bigHair,fro';
+  const HAIR_M = 'shortFlat,shortRound,shortWaved,shortCurly,theCaesar,theCaesarAndSidePart,sides,dreads01,frizzle';
+  const HAIR_COLORS = '2c1b18,4a312c,724133,a55728,b58143,d6b370,c93305';
+  const avatarTraits = (seed) => {
+    const female = FEMALE_NAMES.includes(seed);
+    return `seed=${encodeURIComponent(seed)}&top=${female ? HAIR_F : HAIR_M}&hairColor=${HAIR_COLORS}`
+      + `&topProbability=100&facialHairProbability=${female ? 0 : 35}&facialHair=beardLight,beardMedium`
+      + '&accessoriesProbability=15&accessories=prescription01,prescription02,round'
+      + '&clothing=collarAndSweater,shirtCrewNeck,blazerAndShirt,blazerAndSweater';
+  };
+  const avatarUrl = (seed, bg) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
   const MATH_AVATAR = avatarUrl('Yesion', 'c7d2fe');
   // Un cuadro del mismo personaje con boca y ojos fijos; la videollamada alterna cuadros para animarlo
-  const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default&facialHairProbability=0&accessoriesProbability=20&clothing=collarAndSweater,shirtCrewNeck,blazerAndShirt`;
+  const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default,raisedExcited`;
 
   const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const noEmoji = (s) => String(s || '').replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}]️?\s?/gu, '');
@@ -1511,7 +1523,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const SPANISH_HINT = /(?:^|[^\p{L}])(hola|quiero|quisiera|tengo|gracias|cómo|estoy|sí|me llamo|vengo|puedo|tienes|usted|vacaciones|trabajo|familia)(?=$|[^\p{L}])/iu;
 
   // Personajes: mujer u hombre, y qué modelo 3D usan (F mujer, M hombre)
-  const FEMALE = ['Emma', 'Sarah', 'Amélie', 'Chloé', 'Claudia', 'Giulia', 'Sofia', 'Sakura'];
+  const FEMALE = FEMALE_NAMES;
   const SHIRT = { 'Café': '#7c2d12', 'Aeropuerto': '#1e3a5f', 'Entrevista': '#1f2937', 'Hotel': '#111827', 'amigo': '#166534' };
   function characterProfile(sc, sceneKey) {
     const female = FEMALE.includes(sc.name);
@@ -1585,13 +1597,25 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }, 2500 + Math.random() * 3000);
   }
 
-  // Muestra el avatar 2D enseguida y lo cambia por el 3D cuando termina de cargar
+  // El avatar 3D es opcional (Configuración): en algunas tarjetas de video se ve incompleto
+  const AVATAR3D_KEY = 'omni_tutor_avatar3d';
+  const avatar3dEnabled = () => { try { return localStorage.getItem(AVATAR3D_KEY) === '1'; } catch (e) { return false; } };
+  const avatar3dToggle = document.getElementById('avatar3d-toggle');
+  if (avatar3dToggle) {
+    avatar3dToggle.checked = avatar3dEnabled();
+    avatar3dToggle.addEventListener('change', () => {
+      try { localStorage.setItem(AVATAR3D_KEY, avatar3dToggle.checked ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
+    });
+  }
+
+  // Muestra el avatar animado de la tarjeta; si el 3D está activado, lo cambia por el 3D cuando carga
   async function mountTutor(seed, bg, profile) {
     mountLiveAvatar(seed, bg);
     tutorGender = profile.gender;
     use3D = false;
     tutorVideoCard.classList.remove('is-3d');
     const token = ++mountToken;
+    if (!avatar3dEnabled()) return;
     try {
       if (!window.Avatar3D) {
         await new Promise((resolve, reject) => {
@@ -2478,7 +2502,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         langCode = LANG_VOICE_CODES[langSelect.value] || 'en-US';
       }
       recognitionInstance.lang = langCode;
-      recognitionInstance.interimResults = false;
+      // Resultados parciales: se ve lo que va oyendo y, si se corta antes del final, no se pierde la respuesta
+      recognitionInstance.interimResults = true;
       recognitionInstance.maxAlternatives = 3;
 
       recognitionInstance.onstart = () => {
@@ -2490,25 +2515,42 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
       const rec = recognitionInstance;
       let gotResult = false;
+      let partial = '';   // lo último que alcanzó a oír antes del resultado final
 
-      rec.onresult = (event) => {
-        // El reconocedor puede oír varias versiones; todas cuentan al revisar la respuesta
+      const finish = (heard, confidence) => {
+        if (gotResult) return;
         gotResult = true;
-        const heard = Array.from(event.results[0]).map(r => r.transcript).filter(Boolean);
-        const confidence = event.results[0][0].confidence || 0;
         stopListening();
         if (!heard.length) { setCaption('Aviso', MIC_ERRORS['no-speech']); return; }
         handleUserSpeechTurn(heard[0], heard.slice(1), { spoken: true, confidence });
       };
 
+      rec.onresult = (event) => {
+        const last = event.results[event.results.length - 1];
+        const text = Array.from(event.results).map(r => r[0].transcript).join(' ').trim();
+        if (!last.isFinal) {
+          // Muestra en vivo lo que va oyendo
+          partial = text;
+          if (text) setCaption('Tú', `${text}…`);
+          return;
+        }
+        // El reconocedor puede oír varias versiones; todas cuentan al revisar la respuesta
+        const heard = [text, ...Array.from(last).slice(1).map(r => r.transcript)].filter(Boolean);
+        finish(heard, last[0].confidence || 0);
+      };
+
       rec.onerror = (e) => {
         console.warn('Error en SpeechRecognition:', e.error, e);
+        // Si ya había oído algo, se usa en vez de perder la respuesta
+        if (partial && (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'network')) { finish([partial], 0.6); return; }
         gotResult = true;
         stopListening();
         setCaption('Aviso', MIC_ERRORS[e.error] || `El micrófono falló (${e.error}). Toca Hablar de nuevo o elige una respuesta.`);
       };
 
       rec.onend = () => {
+        // Se cortó sin resultado final: se usa lo último que oyó
+        if (!gotResult && partial) { finish([partial], 0.6); return; }
         // Solo apaga si sigue siendo la misma escucha (no una nueva que ya empezó)
         if (recognitionInstance === rec) stopListening();
         if (!gotResult) setCaption('Aviso', MIC_ERRORS['no-speech']);
