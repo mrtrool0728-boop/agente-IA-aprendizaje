@@ -128,6 +128,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // Un cuadro del mismo personaje con boca y ojos fijos; la videollamada alterna cuadros para animarlo
   const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default,raisedExcited`;
 
+  // Cara animada: cuadros del mismo personaje que se alternan. Parpadea sola, se balancea
+  // y con face.talk() mueve la boca. La usan las tarjetas, la bienvenida y la portada (landing.js).
+  const motionOff = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function createFace(seed, bg, sizeClass = '') {
+    const el = document.createElement('span');
+    el.className = `face ${sizeClass}`.trim();
+    el.style.setProperty('--face-bg', `#${bg}`);
+    el.dataset.mouth = 'rest';
+    el.setAttribute('aria-hidden', 'true');
+    const f = (mouth, eyes) => avatarFrameUrl(seed, mouth, eyes);
+    el.innerHTML = `<span class="face-inner">
+      <img data-frame="rest" src="${f('smile', 'default')}" alt="">
+      <img data-frame="mid" src="${f('default', 'default')}" alt="">
+      <img data-frame="open" src="${f('disbelief', 'default')}" alt="">
+      <img data-frame="blink" src="${f('smile', 'closed')}" alt="">
+    </span>`;
+    const blink = () => {
+      if (!el.isConnected) return;
+      if (!motionOff()) {
+        el.classList.add('blink');
+        setTimeout(() => el.classList.remove('blink'), 140);
+      }
+      setTimeout(blink, 2500 + Math.random() * 3500);
+    };
+    setTimeout(blink, 600 + Math.random() * 2500);
+    let talkTimer = null;
+    el.talk = (ms = 1600) => {
+      if (motionOff()) return;
+      clearInterval(talkTimer);
+      const shapes = ['open', 'mid', 'open', 'rest', 'mid'];
+      let i = 0;
+      el.classList.add('talking');
+      talkTimer = setInterval(() => { el.dataset.mouth = shapes[i++ % shapes.length]; }, 120);
+      setTimeout(() => { clearInterval(talkTimer); el.dataset.mouth = 'rest'; el.classList.remove('talking'); }, ms);
+    };
+    return el;
+  }
+  window.OmniFaces = { createFace, avatarUrl, flagUrl, FEMALE_NAMES };
+
+  // El Profe Yesion de las bandas de bienvenida también se mueve
+  document.querySelectorAll('.welcome-avatar-wrap img.avatar').forEach(img => {
+    const face = createFace('Yesion', 'c7d2fe', 'face-xl');
+    img.replaceWith(face);
+    face.closest('.welcome-card')?.addEventListener('mouseenter', () => face.talk(1400));
+  });
+
   const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const noEmoji = (s) => String(s || '').replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}]️?\s?/gu, '');
   const icon = (id) => `<svg class="ico"><use href="#${id}"/></svg>`;
@@ -813,7 +859,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
     sceneGrid.innerHTML = Object.entries(langScenarios).map(([key, sc]) => `
       <button class="scene-card" data-scene-key="${key}" data-scene="${esc(sc.title)}">
-        <img class="avatar avatar-xl" src="${avatarUrl(sc.name, sc.bg)}" alt="">
+        <span class="face-slot" data-seed="${esc(sc.name)}" data-bg="${sc.bg}"></span>
         <span class="scene-text">
           <b>${sc.title}</b>
           <small>${sc.sub}</small>
@@ -821,6 +867,13 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         </span>
         <span class="scene-go">${icon('i-arrow')}</span>
       </button>`).join('');
+
+    // Caras animadas: parpadean solas y "saludan" al pasar el mouse
+    sceneGrid.querySelectorAll('.face-slot').forEach(slot => {
+      const face = createFace(slot.dataset.seed, slot.dataset.bg, 'face-xl');
+      slot.replaceWith(face);
+      face.closest('.scene-card').addEventListener('mouseenter', () => face.talk(1200));
+    });
   }
 
   flagGrid.addEventListener('click', (e) => {

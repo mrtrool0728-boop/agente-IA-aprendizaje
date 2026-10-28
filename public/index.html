@@ -43,7 +43,9 @@
   <!-- Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=dev">
+  <!-- Si ya entró a la app en esta pestaña, se salta la portada (antes de pintar, sin parpadeo) -->
+  <script>try { if (sessionStorage.getItem("omni_tutor_entered") === "1") document.documentElement.classList.add("app-open"); } catch (e) {}</script>
 </head>
 <body>
   <!-- Íconos SVG del sistema -->
@@ -72,6 +74,178 @@
       <symbol id="i-mic-off" viewBox="0 0 24 24"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
     </defs>
   </svg>
+
+  <!-- ======================================================== -->
+  <!-- PORTADA: qué es, cómo funciona, cómo se maneja (landing.js) -->
+  <!-- ======================================================== -->
+  <div class="landing" id="landing">
+    <header class="lp-nav">
+      <span class="lp-logo">Con <span>Yesion</span> Aprendes</span>
+      <nav class="lp-links" aria-label="Portada">
+        <a href="#lp-como">Cómo funciona</a>
+        <a href="#lp-manejo">Cómo se usa</a>
+        <a href="#lp-tecnica">Cómo está hecha</a>
+      </nav>
+      <button class="lp-btn lp-btn-small" data-enter>Entrar</button>
+    </header>
+
+    <!-- Portada principal -->
+    <section class="lp-hero">
+      <div class="lp-hero-text">
+        <span class="lp-eyebrow lp-in" style="--d:0">Tutor con IA · Idiomas y matemáticas</span>
+        <h1 class="lp-in" style="--d:1">Aprende hablando con tutores que te escuchan y te corrigen</h1>
+        <p class="lp-in" style="--d:2">Practica inglés, francés, alemán, italiano, portugués y japonés en videollamadas de la vida real, y resuelve matemáticas paso a paso con un profe que te guía. Gratis, sin cuenta y desde el navegador.</p>
+        <div class="lp-cta lp-in" style="--d:3">
+          <button class="lp-btn" data-enter>Empezar a practicar <svg class="ico"><use href="#i-arrow"/></svg></button>
+          <a class="lp-btn lp-btn-ghost" href="#lp-como">Ver cómo funciona</a>
+        </div>
+      </div>
+
+      <!-- Videollamada de muestra: los tutores se turnan para saludar -->
+      <div class="lp-demo lp-in" style="--d:2">
+        <div class="lp-call">
+          <div class="lp-call-top"><span class="lp-live"></span> En vivo <span class="lp-call-name" id="lp-call-name">Emma · Inglés</span></div>
+          <div class="lp-call-stage" id="lp-call-stage"></div>
+          <div class="lp-bubble" id="lp-bubble">
+            <b id="lp-bubble-text">Hi! Ready to practice?</b>
+            <small id="lp-bubble-es">¡Hola! ¿Empezamos a practicar?</small>
+          </div>
+        </div>
+        <div class="lp-strip" id="lp-strip" role="list" aria-label="Elige un tutor"></div>
+      </div>
+    </section>
+
+    <!-- Cifras reales de lo que trae -->
+    <section class="lp-facts" data-reveal>
+      <div><b>6</b><span>idiomas</span></div>
+      <div><b>90</b><span>conversaciones guiadas</span></div>
+      <div><b>3</b><span>niveles por idioma</span></div>
+      <div><b>12</b><span>ejercicios de matemáticas</span></div>
+      <div><b>0</b><span>cuentas ni pagos</span></div>
+    </section>
+
+    <!-- Qué es -->
+    <section class="lp-section">
+      <div class="lp-what" data-reveal>
+        <span class="lp-kicker">Qué es</span>
+        <h2>Un tutor que enseña en vez de resolver</h2>
+        <p>Con Yesion Aprendes es una app para practicar idiomas conversando y aprender matemáticas razonando. En idiomas hablas con personajes nativos —una barista en Londres, un agente de aduana en París, una entrevistadora en Berlín— que te responden, te corrigen y te hacen repetir cuando algo no suena bien. En matemáticas, el Profe Yesion te lleva paso a paso con preguntas y pistas hasta que llegas tú a la respuesta.</p>
+      </div>
+    </section>
+
+    <!-- Tutores -->
+    <section class="lp-section">
+      <h2 class="lp-title" data-reveal>Conoce a tus tutores</h2>
+      <p class="lp-sub" data-reveal>Cada situación tiene su personaje. Pasa el mouse por encima para que te salude.</p>
+      <div class="lp-tutors" id="lp-tutors"></div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section class="lp-band" id="lp-como">
+      <h2 class="lp-title lp-on-dark" data-reveal>Cómo funciona</h2>
+      <div class="lp-steps">
+        <article class="lp-step" data-reveal style="--i:0">
+          <span class="lp-step-ico"><svg class="ico"><use href="#i-lang"/></svg></span>
+          <div><h3>1. Elige idioma y situación</h3><p>Café, aeropuerto, entrevista de trabajo, hotel o charla con un amigo. Cada una es una conversación real con su personaje.</p></div>
+        </article>
+        <article class="lp-step" data-reveal style="--i:1">
+          <span class="lp-step-ico"><svg class="ico"><use href="#i-mic"/></svg></span>
+          <div><h3>2. Habla o escribe</h3><p>En la videollamada respondes con tu voz o tocando una respuesta sugerida. En el chat, escribiendo.</p></div>
+        </article>
+        <article class="lp-step" data-reveal style="--i:2">
+          <span class="lp-step-ico"><svg class="ico"><use href="#i-check"/></svg></span>
+          <div><h3>3. Te corrige al instante</h3><p>Si no respondes lo que te preguntaron, te ayuda en español. Si una palabra no se entendió, te la dice despacio y te hace repetirla.</p></div>
+        </article>
+        <article class="lp-step" data-reveal style="--i:3">
+          <span class="lp-step-ico"><svg class="ico"><use href="#i-trophy"/></svg></span>
+          <div><h3>4. Sube de nivel</h3><p>Al completar las 5 situaciones pasas al siguiente nivel. En los niveles 2 y 3 la traducción y las respuestas solo aparecen si las pides.</p></div>
+        </article>
+      </div>
+      <button class="lp-btn lp-btn-light" data-enter data-reveal>Probar ahora</button>
+    </section>
+
+    <!-- Qué puedes hacer -->
+    <section class="lp-section">
+      <h2 class="lp-title" data-reveal>Todo lo que puedes hacer</h2>
+      <div class="lp-features">
+        <article class="lp-feature" data-reveal style="--i:0">
+          <span class="lp-feature-ico"><svg class="ico"><use href="#i-video"/></svg></span>
+          <h3>Videollamadas de idiomas</h3>
+          <p>El personaje te habla en su idioma, con subtítulos y traducción. Tú respondes por micrófono y la conversación avanza pregunta por pregunta.</p>
+        </article>
+        <article class="lp-feature" data-reveal style="--i:1">
+          <span class="lp-feature-ico"><svg class="ico"><use href="#i-math"/></svg></span>
+          <h3>Profe de matemáticas</h3>
+          <p>Porcentajes, ecuaciones, fracciones, Pitágoras y más. Revisa tu número en cada paso, te da pistas si fallas y te explica cuando lo necesitas.</p>
+        </article>
+        <article class="lp-feature" data-reveal style="--i:2">
+          <span class="lp-feature-ico"><svg class="ico"><use href="#i-quiz"/></svg></span>
+          <h3>Quizzes rápidos</h3>
+          <p>Retos de 4 preguntas con explicación de cada respuesta, para repasar lo que practicaste.</p>
+        </article>
+        <article class="lp-feature" data-reveal style="--i:3">
+          <span class="lp-feature-ico"><svg class="ico"><use href="#i-flame"/></svg></span>
+          <h3>Logros y racha</h3>
+          <p>Ganas XP, subes de rango, desbloqueas medallas y llevas la cuenta de los días seguidos que practicas.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Cómo se maneja -->
+    <section class="lp-section lp-guide" id="lp-manejo">
+      <h2 class="lp-title" data-reveal>Cómo se usa la videollamada</h2>
+      <p class="lp-sub" data-reveal>Estos son los botones que vas a ver. No necesitas nada más.</p>
+      <div class="lp-guide-grid">
+        <div class="lp-controls" data-reveal>
+          <span class="lp-ctl"><svg class="ico"><use href="#i-mic"/></svg>Hablar</span>
+          <span class="lp-ctl lp-ctl-blue"><svg class="ico"><use href="#i-lang"/></svg>No entendí</span>
+          <span class="lp-ctl"><svg class="ico"><use href="#i-camera"/></svg>Cámara</span>
+          <span class="lp-ctl"><svg class="ico"><use href="#i-bulb"/></svg>Pista</span>
+          <span class="lp-ctl lp-ctl-red"><svg class="ico"><use href="#i-x"/></svg>Colgar</span>
+        </div>
+        <dl class="lp-guide-list">
+          <div data-reveal style="--i:0"><dt>Hablar</dt><dd>Tócalo y di tu respuesta cuando se ponga rojo. Mientras hablas ves lo que te va entendiendo.</dd></div>
+          <div data-reveal style="--i:1"><dt>No entendí</dt><dd>El tutor te explica en español lo que te preguntó y te da un ejemplo para responder.</dd></div>
+          <div data-reveal style="--i:2"><dt>Pista</dt><dd>Muestra una frase que puedes decir. En niveles 2 y 3 también tienes "Sugerir respuestas" y "Traducir pregunta".</dd></div>
+          <div data-reveal style="--i:3"><dt>Repetir</dt><dd>Vuelve a escuchar lo último que dijo el tutor.</dd></div>
+          <div data-reveal style="--i:4"><dt>Colgar</dt><dd>Termina la llamada y te muestra cuánto practicaste y la XP que ganaste.</dd></div>
+        </dl>
+      </div>
+      <p class="lp-note" data-reveal>Arriba de la app tienes cuatro pestañas: <b>Idiomas</b>, <b>Matemáticas</b>, <b>Quizzes</b> y <b>Logros</b>. El botón de ajustes, arriba a la derecha, abre la Configuración.</p>
+    </section>
+
+    <!-- Cómo está hecha -->
+    <section class="lp-section" id="lp-tecnica">
+      <h2 class="lp-title" data-reveal>Cómo está hecha</h2>
+      <p class="lp-sub" data-reveal>Todo corre en tu navegador. Así se integran sus partes:</p>
+      <div class="lp-tech">
+        <article data-reveal style="--i:0"><h3><svg class="ico"><use href="#i-sparkles"/></svg>Sin IA o con IA</h3><p>Sin clave usa las conversaciones guiadas y los ejercicios que trae la app. Con tu propia clave gratuita de Gemini conversa libremente y revisa tu gramática.</p></article>
+        <article data-reveal style="--i:1"><h3><svg class="ico"><use href="#i-mic"/></svg>Voz y micrófono</h3><p>El reconocimiento de voz y las voces son las de tu navegador. En español suena por defecto "Google español". Opcional: voces naturales con Azure Speech.</p></article>
+        <article data-reveal style="--i:2"><h3><svg class="ico"><use href="#i-lock"/></svg>Tu progreso es tuyo</h3><p>Nivel, XP, racha y claves se guardan solo en tu navegador. No hay cuentas, servidores propios ni base de datos con tus datos.</p></article>
+        <article data-reveal style="--i:3"><h3><svg class="ico"><use href="#i-settings"/></svg>Funciona en todos lados</h3><p>Computador o celular, sin instalar nada. Para la voz y el micrófono, Google Chrome o Microsoft Edge.</p></article>
+      </div>
+    </section>
+
+    <!-- Para quién -->
+    <section class="lp-section">
+      <h2 class="lp-title" data-reveal>¿Para quién es?</h2>
+      <div class="lp-who">
+        <article data-reveal style="--i:0"><h3>Viajeros</h3><p>Pide en un café, pasa la aduana y haz el check-in sin trabarte.</p></article>
+        <article data-reveal style="--i:1"><h3>Entrevistas y trabajo</h3><p>Ensaya preguntas de entrevista hasta que tus respuestas salgan solas.</p></article>
+        <article data-reveal style="--i:2"><h3>Estudiantes</h3><p>Repasa matemáticas con pistas en vez de ver la respuesta de una.</p></article>
+        <article data-reveal style="--i:3"><h3>Quien retoma un idioma</h3><p>Empieza con ayudas en español y quítalas a medida que subes de nivel.</p></article>
+      </div>
+    </section>
+
+    <!-- Llamado final -->
+    <section class="lp-final" data-reveal>
+      <h2>¿Empezamos tu primera conversación?</h2>
+      <p>Elige un idioma, una situación y toca Hablar. Es gratis.</p>
+      <button class="lp-btn lp-btn-light" data-enter>Empezar a practicar <svg class="ico"><use href="#i-arrow"/></svg></button>
+    </section>
+
+    <footer class="lp-footer">Con Yesion Aprendes · Tutor de idiomas y matemáticas</footer>
+  </div>
 
   <div class="app">
 
@@ -835,13 +1009,14 @@
     "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7.0/modules/talkinghead.mjs"
   } }
   </script>
-  <script type="module" src="avatar3d.js"></script>
+  <script type="module" src="avatar3d.js?v=dev"></script>
   <!-- Acceso por invitación (código a Gmail) -->
-  <script src="gate-config.js"></script>
-  <script src="gate.js"></script>
-  <script src="dialogues.js"></script>
-  <script src="dialogues-levels.js"></script>
-  <script src="math-coach.js"></script>
-  <script src="app.js"></script>
+  <script src="gate-config.js?v=dev"></script>
+  <script src="gate.js?v=dev"></script>
+  <script src="dialogues.js?v=dev"></script>
+  <script src="dialogues-levels.js?v=dev"></script>
+  <script src="math-coach.js?v=dev"></script>
+  <script src="app.js?v=dev"></script>
+  <script src="landing.js?v=dev"></script>
 </body>
 </html>
