@@ -1,0 +1,19 @@
+{
+  "name": "agente-tutor-ia",
+  "version": "1.0.0",
+  "description": "Agente Tutor Inteligente de Matemáticas e Idiomas con Gamificación, Visión y Método Socrático",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "ai-tutor",
+    "gemini",
+    "education",
+    "math",
+    "languages"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

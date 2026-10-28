@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:Archivo,sans-serif;background:#e3ebf4;color:#13213f;display:grid;grid-template-columns:232px 1fr 368px}
+.rail{background:#1d3b8f;color:#e3ebf4;padding:24px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
+.rail::after{content:"";position:absolute;top:0;right:0;bottom:0;width:8px;background:repeating-linear-gradient(180deg,#d2392b 0 16px,#e3ebf4 16px 24px,#1d3b8f 24px 40px,#e3ebf4 40px 48px)}
+.brand{font-stretch:125%;font-weight:800;font-size:22px;letter-spacing:.01em;margin-bottom:24px}
+.brand small{display:block;font-size:12px;font-weight:500;font-stretch:100%;opacity:.7;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.nav{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;font-size:15px;font-weight:500;color:#c9d6ee}
+.nav i{width:14px;height:18px;border-radius:2px;display:block}
+.nav.on{background:#e3ebf4;color:#13213f;font-weight:700}
+.me{margin-top:auto;border-top:1px solid #3c58a8;padding-top:16px;font-size:13px;color:#c9d6ee;display:grid;gap:8px}
+.me b{color:#fff;font-size:20px;font-stretch:80%}
+.main{display:flex;flex-direction:column;padding:24px 32px 24px 40px;gap:16px}
+.head{display:flex;align-items:center;gap:24px;padding-bottom:16px;border-bottom:1px solid #b9c8dc}
+.pm{width:88px;height:88px;border:2px solid #1d3b8f;border-radius:50%;display:grid;place-items:center;text-align:center;font-stretch:75%;font-weight:700;font-size:11px;letter-spacing:.1em;color:#1d3b8f;transform:rotate(-8deg);position:relative}
+.pm::before{content:"";position:absolute;inset:6px;border:1px solid #1d3b8f;border-radius:50%}
+.pm b{font-size:18px;display:block;letter-spacing:.02em}
+.ht h2{font-size:28px;font-weight:700;font-stretch:90%}
+.ht p{font-size:14px;color:#4a5b7c;margin-top:4px}
+.sel{margin-left:auto;display:flex;gap:8px}
+.sel span{border:1px solid #9fb2cf;background:#fff;border-radius:4px;padding:8px 12px;font-size:14px}
+.msgs{flex:1;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.m{max-width:560px;padding:14px 16px;border-radius:4px;font-size:16px;line-height:1.5;background:#fff;border:1px solid #c8d4e6}
+.m.u{align-self:flex-end;background:#1d3b8f;color:#fff;border-color:#1d3b8f}
+.m small{display:block;font-size:12px;color:#6a7a98;margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase}
+.m.u small{color:#b9c8ec}
+.in{display:flex;gap:8px;background:#fff;border:1px solid #9fb2cf;border-radius:4px;padding:8px}
+.in span{flex:1;padding:8px;color:#7d8aa3;font-size:16px}
+.in button{background:#1d3b8f;color:#fff;border:0;border-radius:4px;padding:0 24px;font:700 15px Archivo}
+.fb{background:#fff;border-left:1px solid #b9c8dc;padding:24px;display:flex;flex-direction:column;gap:16px}
+.fb h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#4a5b7c}
+.card{border:1px solid #d6dfec;border-radius:4px;padding:14px;font-size:15px;line-height:1.5}
+.card h4{font-size:13px;margin-bottom:6px;letter-spacing:.04em}
+.err{border-left:4px solid #d2392b}
+.err h4{color:#d2392b}
+s{color:#d2392b}
+.ok{border-left:4px solid #2f7d4f}
+.ok h4{color:#2f7d4f}
+.tip{border-left:4px solid #c98a12}
+.stamps{margin-top:auto;display:flex;gap:12px}
+.st{width:72px;height:88px;background:#fff;padding:5px;-webkit-mask:radial-gradient(circle 3px at 3px 3px,transparent 98%,#000) -3px -3px/9px 9px;mask:radial-gradient(circle 3px at 3px 3px,transparent 98%,#000) -3px -3px/9px 9px;filter:drop-shadow(0 0 0 #000)}
+.st div{height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:6px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em}
+.st b{font-size:20px;font-stretch:75%}
+</style></head><body>
+<aside class="rail">
+<div class="brand">OmniTutor<small>Correo de práctica</small></div>
+<div class="nav on"><i style="background:#1d3b8f;outline:2px solid #1d3b8f"></i>Idiomas</div>
+<div class="nav"><i style="background:#2f7d4f"></i>Matemáticas</div>
+<div class="nav"><i style="background:#c98a12"></i>Quizzes</div>
+<div class="nav"><i style="background:#d2392b"></i>Logros</div>
+<div class="me"><span>Racha</span><b>6 días</b><span>Aprendiz · 340 XP</span></div>
+</aside>
+<main class="main">
+<div class="head">
+<div class="pm"><div>LONDRES<b>27 OCT</b>CAFÉ</div></div>
+<div class="ht"><h2>Café en Londres</h2><p>Inglés · Pides comida y bebida a un barista</p></div>
+<div class="sel"><span>Inglés ▾</span><span>Cambiar escenario</span></div>
+</div>
+<div class="msgs">
+<div class="m"><small>Barista</small>Hi there! Welcome to The London Roast. What can I get started for you today?</div>
+<div class="m u"><small>Tú</small>Hello, I want a latte and one scone please.</div>
+<div class="m"><small>Barista</small>Lovely choice! Would you like oat milk or regular? And is that to have here or to take away?</div>
+<div class="m u"><small>Tú</small>For have here, with oat milk.</div>
+</div>
+<div class="in"><span>Escribe tu respuesta en inglés…</span><button>Enviar</button></div>
+</main>
+<aside class="fb">
+<h3>Corrección del último turno</h3>
+<div class="card err"><h4>Corrección</h4><s>For have here</s> → <b>To have here</b>. Con «have» va «to», no «for».</div>
+<div class="card ok"><h4>Como lo diría un nativo</h4>“I'll have it here, with oat milk, please.”</div>
+<div class="card tip"><h4>Tip</h4>En Reino Unido se dice «take away»; en EE. UU., «to go».</div>
+<div class="stamps">
+<div class="st"><div style="background:#1d3b8f">IDIOMAS<b>25</b>XP</div></div>
+<div class="st"><div style="background:#2f7d4f">MATE<b>10</b>XP</div></div>
+<div class="st"><div style="background:#c98a12">QUIZ<b>100</b>XP</div></div>
+</div>
+</aside>
+</body></html>

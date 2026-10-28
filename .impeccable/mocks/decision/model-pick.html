@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:"Atkinson Hyperlegible",sans-serif;background:#fff;color:#1d2433;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:32px;padding:0 40px;height:72px;border-bottom:2px solid #1d2433}
+.top b{font-size:22px}
+.tab{font-size:16px;padding:24px 0;border-bottom:4px solid transparent}
+.tab.on{border-color:#d0312d;font-weight:700}
+.xp{margin-left:auto;font-size:15px}
+.wrap{flex:1;display:grid;grid-template-columns:1fr 440px;background-image:linear-gradient(#dbe8f5 1px,transparent 1px),linear-gradient(90deg,#dbe8f5 1px,transparent 1px);background-size:24px 24px}
+.chat{padding:32px 40px;display:flex;flex-direction:column;gap:16px}
+.chat h2{font-size:26px}
+.m{max-width:600px;background:#fff;border:1px solid #1d2433;padding:14px 16px;font-size:17px;line-height:1.5}
+.m.u{align-self:flex-end;background:#1d2433;color:#fff}
+.in{margin-top:auto;display:flex;border:2px solid #1d2433;background:#fff}
+.in span{flex:1;padding:16px;color:#777}
+.in button{background:#1d2433;color:#fff;border:0;padding:0 28px;font:700 16px "Atkinson Hyperlegible"}
+.margin{border-left:3px double #d0312d;background:rgba(255,255,255,.85);padding:32px;display:flex;flex-direction:column;gap:20px}
+.margin h3{font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.pen{font-family:Caveat,cursive;color:#d0312d;font-size:28px;line-height:1.1}
+.line{font-size:18px}
+.line s{text-decoration-color:#d0312d;text-decoration-thickness:2px}
+mark{background:#f4e04d}
+</style></head><body>
+<div class="top"><b>OmniTutor</b><span class="tab on">Idiomas</span><span class="tab">Matemáticas</span><span class="tab">Quizzes</span><span class="tab">Logros</span><span class="xp">340 XP · racha 6 días</span></div>
+<div class="wrap">
+<div class="chat">
+<h2>Café en Londres · Inglés</h2>
+<div class="m">Hi there! Welcome to The London Roast. What can I get started for you today?</div>
+<div class="m u">Hello, I want a latte and one scone please.</div>
+<div class="m">Lovely choice! Oat milk or regular? To have here or take away?</div>
+<div class="m u">For have here, with oat milk.</div>
+<div class="in"><span>Escribe tu respuesta en inglés…</span><button>Enviar</button></div>
+</div>
+<div class="margin">
+<h3>Corrección</h3>
+<div class="line"><s>For</s> have here</div>
+<div class="pen">→ To have here</div>
+<div class="line">Un nativo diría: <mark>“I'll have it here, please.”</mark></div>
+<div class="pen">¡Bien el «oat milk»! ✓</div>
+<div class="line">Tip: «take away» (UK) = «to go» (US).</div>
+</div>
+</div>
+</body></html>

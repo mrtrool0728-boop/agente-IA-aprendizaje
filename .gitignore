@@ -1,0 +1,13 @@
+# Claves y configuración local
+.env
+
+# Dependencias (por si algún día se agregan)
+node_modules/
+
+# Modelos 3D: licencia de uso no comercial, no se redistribuyen.
+# La app los descarga del repositorio de TalkingHead si no están aquí.
+public/avatars/
+
+# Archivos de trabajo del diseño
+.impeccable/questions/
+.impeccable/review/
