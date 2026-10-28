@@ -1894,45 +1894,26 @@ html:not(.app-open) { scroll-behavior: smooth; }
 .lp-in { opacity: 0; animation: lp-up .8s var(--ease) forwards; animation-delay: calc(var(--d, 0) * 0.12s + 0.1s); }
 @keyframes lp-up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
 
-/* Videollamada de muestra */
-.lp-demo { display: grid; gap: 16px; justify-items: center; }
-.lp-call {
-  position: relative; width: min(440px, 100%);
-  background: #fff; color: var(--ink);
-  border-radius: 24px; padding: 14px 14px 18px;
-  box-shadow: 0 30px 60px -25px rgba(17, 12, 66, 0.6);
+/* Robot 3D (Spline) que sigue el cursor */
+.lp-hero { position: relative; }
+.lp-hero-text { position: relative; z-index: 2; }
+.lp-robot { position: relative; z-index: 1; height: 540px; margin: -40px 0 -60px; }
+.lp-robot-scene { display: block; width: 100%; height: 100%; }
+.lp-robot-hint { display: block; margin-top: 18px; color: #c7d2fe; font-size: 0.88rem; font-weight: 600; }
+
+/* Banderas que deja el cursor */
+.lp-trail { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.lp-trail-flag {
+  position: absolute; width: 26px; height: 19px; margin: -10px 0 0 -13px;
+  border-radius: 4px; object-fit: cover;
+  box-shadow: 0 0 0 2px #fff, 0 6px 14px -4px rgba(17, 12, 66, 0.5);
+  animation: flag-float 1.3s var(--ease) forwards;
 }
-.lp-call-top { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: var(--ink-2); padding: 2px 4px 10px; }
-.lp-live { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: blink 1.4s infinite; }
-.lp-call-name { margin-left: auto; color: var(--brand-600); }
-.lp-call-stage { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; background: var(--brand-50); }
-.face-hero {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  border-radius: 0; opacity: 0; transform: scale(1.04);
-  transition: opacity .5s var(--ease), transform .6s var(--ease);
+@keyframes flag-float {
+  0% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  18% { opacity: 1; transform: scale(1.1) rotate(calc(var(--rot) / 2)); }
+  100% { opacity: 0; transform: translate(var(--dx), -70px) scale(0.8) rotate(var(--rot)); }
 }
-.face-hero .face-inner { inset: 8% 18% 0; }
-.face-hero.is-on { opacity: 1; transform: none; }
-.lp-bubble {
-  position: relative; margin-top: 12px;
-  display: grid; gap: 2px;
-  background: #fff; border: 1px solid var(--line);
-  border-radius: 16px; padding: 10px 14px;
-  box-shadow: 0 12px 24px -14px rgba(17, 24, 39, 0.35);
-}
-.lp-bubble b { font-size: 1rem; }
-.lp-bubble small { color: var(--brand-600); font-size: 0.85rem; }
-.lp-bubble.pop { animation: bubble-pop .45s var(--ease); }
-@keyframes bubble-pop { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
-.lp-strip { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.lp-strip-item {
-  position: relative; padding: 3px; border: 0; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18); cursor: pointer;
-  transition: transform .2s var(--ease), background .2s;
-}
-.lp-strip-item:hover { transform: translateY(-3px); }
-.lp-strip-item.is-on { background: #fff; transform: translateY(-3px) scale(1.06); }
-.lp-flag { position: absolute; right: -2px; bottom: -2px; width: 20px; height: 15px; border-radius: 3px; box-shadow: 0 0 0 2px #fff; object-fit: cover; }
 
 /* Cifras */
 .lp-facts {
@@ -2053,6 +2034,7 @@ html:not(.app-open) { scroll-behavior: smooth; }
 
 @media (max-width: 1000px) {
   .lp-hero { grid-template-columns: 1fr; padding-top: 44px; }
+  .lp-robot { height: 460px; margin: -10px 0 -40px; }
   .lp-tutors { grid-template-columns: repeat(3, 1fr); }
   .lp-features, .lp-tech, .lp-who { grid-template-columns: 1fr 1fr; }
   .lp-guide-grid { grid-template-columns: 1fr; }
@@ -2062,7 +2044,7 @@ html:not(.app-open) { scroll-behavior: smooth; }
   .lp-nav .lp-btn-small { margin-left: auto; }
   .lp-hero { padding: 36px 16px 80px; gap: 32px; }
   .lp-hero p { font-size: 1rem; }
-  .lp-facts { grid-template-columns: repeat(2, 1fr); width: calc(100% - 32px); }
+  .lp-robot { height: 380px; margin: -20px -16px -30px; }  .lp-facts { grid-template-columns: repeat(2, 1fr); width: calc(100% - 32px); }
   .lp-facts div:last-child { grid-column: span 2; }
   .lp-section { width: calc(100% - 32px); padding-top: 64px; }
   .lp-what { padding: 30px 20px; }

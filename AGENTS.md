@@ -69,6 +69,8 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
 - **Portada:** `#landing` en `index.html` con `landing.js` (tutores animados, aparición al hacer scroll y paso a la app).
   - Se muestra al abrir. Al entrar se guarda `omni_tutor_entered` en `sessionStorage`, y el logo de la app vuelve a la portada.
   - Las caras animadas salen de `createFace()` en `app.js` (`window.OmniFaces`).
+  - Arriba hay un robot 3D de Spline que sigue el cursor: `<spline-viewer>` (visor `@splinetool/viewer` 2.0.64 desde jsDelivr, sin React ni npm). La escena es `prod.spline.design/kZDDjO5HuC9GJUM2`, de una cuenta ajena: si deja de cargar, hay que cambiarla.
+  - Al mover el cursor (o tocar en celular) salen banderitas que suben y se desvanecen (`#lp-trail`, `dropFlag` en `landing.js`). Con "reducir movimiento" no salen.
 - **Versión de archivos:** los `?v=dev` de `index.html` los cambia el workflow de Pages por el commit, para que el navegador no use copias viejas. No los quites.
 - **Acceso por invitación:** `public/gate.js` muestra la pantalla de código si `public/gate-config.js` tiene la URL del Apps Script (`acceso-gmail/`). El código llega al Gmail de la dueña. Con la URL vacía, la página se abre sin código.
 - **Íconos:** solo los SVG de `index.html` (`<svg class="ico"><use href="#i-…"/></svg>`).

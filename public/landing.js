@@ -8,55 +8,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const ENTERED = 'omni_tutor_entered';
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ---- Videollamada de muestra: un tutor por idioma, se turnan para saludar ----
-  const HERO = [
-    { name: 'Emma', bg: 'fde68a', flag: 'gb', lang: 'Inglés', say: 'Hi! Ready to practice?', es: '¡Hola! ¿Empezamos a practicar?' },
-    { name: 'Moreau', bg: 'bfdbfe', flag: 'fr', lang: 'Francés', say: 'Bonjour ! On commence ?', es: '¡Buenos días! ¿Empezamos?' },
-    { name: 'Claudia', bg: 'ddd6fe', flag: 'de', lang: 'Alemán', say: 'Hallo! Wollen wir anfangen?', es: '¡Hola! ¿Empezamos?' },
-    { name: 'Marco', bg: 'bbf7d0', flag: 'it', lang: 'Italiano', say: 'Ciao! Pronti a parlare?', es: '¡Hola! ¿Listos para hablar?' },
-    { name: 'Sofia', bg: 'fecaca', flag: 'br', lang: 'Portugués', say: 'Olá! Vamos conversar?', es: '¡Hola! ¿Conversamos?' },
-    { name: 'Kenta', bg: 'c7d2fe', flag: 'jp', lang: 'Japonés', say: 'こんにちは！はじめましょう！', es: '¡Hola! ¡Empecemos!' }
-  ];
-  const stage = document.getElementById('lp-call-stage');
-  const strip = document.getElementById('lp-strip');
-  const bubble = document.getElementById('lp-bubble');
-  const callName = document.getElementById('lp-call-name');
-  const bigFaces = HERO.map(t => {
-    const f = createFace(t.name, t.bg, 'face-hero');
-    stage.appendChild(f);
-    return f;
-  });
-  HERO.forEach((t, i) => {
-    const b = document.createElement('button');
-    b.className = 'lp-strip-item';
-    b.setAttribute('role', 'listitem');
-    b.setAttribute('aria-label', `${t.name}, ${t.lang}`);
-    b.appendChild(createFace(t.name, t.bg, 'face-sm'));
-    b.insertAdjacentHTML('beforeend', `<img class="lp-flag" src="${flagUrl(t.flag)}" alt="">`);
-    b.addEventListener('click', () => { show(i); pauseUntil = Date.now() + 9000; });
-    strip.appendChild(b);
-  });
-
-  let current = -1;
-  let pauseUntil = 0;
-  function show(i) {
-    current = i;
-    const t = HERO[i];
-    bigFaces.forEach((f, k) => f.classList.toggle('is-on', k === i));
-    strip.querySelectorAll('.lp-strip-item').forEach((b, k) => b.classList.toggle('is-on', k === i));
-    callName.textContent = `${t.name} · ${t.lang}`;
-    bubble.classList.remove('pop');
-    void bubble.offsetWidth; // reinicia la animación del globo
-    document.getElementById('lp-bubble-text').textContent = t.say;
-    document.getElementById('lp-bubble-es').textContent = t.es;
-    bubble.classList.add('pop');
-    setTimeout(() => bigFaces[i].talk(1800), 250);
+  // ---- Estela de banderas tras el cursor (o el dedo) en la portada principal ----
+  const FLAGS = ['gb', 'fr', 'de', 'it', 'br', 'jp', 'us', 'es'];
+  const hero = landing.querySelector('.lp-hero');
+  const trail = document.getElementById('lp-trail');
+  const hint = document.getElementById('lp-robot-hint');
+  if ('ontouchstart' in window && !window.matchMedia('(hover: hover)').matches) hint.textContent = 'Toca la pantalla: el robot te mira y suelta banderas';
+  let flagIndex = 0;
+  let lastX = -999, lastY = -999, lastAt = 0;
+  function dropFlag(x, y) {
+    if (trail.childElementCount > 26) trail.firstElementChild.remove();
+    const img = document.createElement('img');
+    img.className = 'lp-trail-flag';
+    img.src = flagUrl(FLAGS[flagIndex++ % FLAGS.length]);
+    img.alt = '';
+    img.style.left = x + 'px';
+    img.style.top = y + 'px';
+    img.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px');
+    img.style.setProperty('--rot', (Math.random() * 50 - 25).toFixed(0) + 'deg');
+    img.addEventListener('animationend', () => img.remove());
+    trail.appendChild(img);
   }
-  show(0);
-  setInterval(() => {
-    if (root.classList.contains('app-open') || Date.now() < pauseUntil || document.hidden) return;
-    show((current + 1) % HERO.length);
-  }, 3800);
+  function spot(e) {
+    const r = hero.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  hero.addEventListener('pointermove', (e) => {
+    if (reduce()) return;
+    const { x, y } = spot(e);
+    const now = performance.now();
+    if (Math.hypot(x - lastX, y - lastY) < 46 || now - lastAt < 60) return;
+    lastX = x; lastY = y; lastAt = now;
+    dropFlag(x, y);
+  });
+  hero.addEventListener('pointerdown', (e) => {
+    if (reduce() || e.pointerType === 'mouse') return;
+    const { x, y } = spot(e);
+    for (let i = 0; i < 4; i++) setTimeout(() => dropFlag(x + (Math.random() * 40 - 20), y), i * 70);
+  });
 
   // ---- Tutores de cada situación ----
   const TUTORS = [
