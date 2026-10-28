@@ -296,6 +296,29 @@ $$3x + 12 = 30$$
     const scData = langDict[scKey] || langDict['amigo'];
     const currentTurn = scData;
 
+    // Sin servidor (por ejemplo en GitHub Pages): sigue el guion de la videollamada para que la charla avance
+    const guion = window.CALL_SCRIPTS?.[langKey]?.[scKey];
+    if (guion) {
+      const userTurns = history.filter(h => h.role === 'user').length;
+      const prev = guion.steps[Math.min(Math.max(userTurns - 1, 0), guion.steps.length - 1)];
+      const next = guion.steps[userTurns];
+      const [line, lineEs] = next ? [next.q, next.es] : guion.end;
+      return {
+        reply: `${line}
+
+*(Español: "${lineEs}")*
+
+---FEEDBACK---
+ERROR: (demo)
+POR QUÉ: Sin la IA conectada no reviso la gramática de lo que escribes; para eso conecta Gemini en Configuración.
+NATIVO: ${prev.opts[0][0]} (${prev.opts[0][1]})
+TIP: ${next ? 'Puedes responder con una de las opciones de abajo.' : '¡Terminaste la conversación! Elige otra situación para seguir practicando.'}`,
+        isDemo: true,
+        translation: lineEs,
+        quickReplies: next ? next.opts.map(o => o[0]) : []
+      };
+    }
+
     return {
       reply: `${currentTurn.greet}
 
@@ -898,7 +921,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         mode: 'language',
         targetLanguage: langSelect.value,
         scenario: scenarioSelect.value,
-        history: state.langHistory.slice(-6),
+        history: state.langHistory.slice(-12),
         apiKey: state.apiKey
       });
 
@@ -2206,6 +2229,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   };
   const ttsCache = new Map();
   let azureFailed = false;
+  let azureDirect = false;   // true cuando no hay servidor propio y se habla directo con Azure
   let azureCharacterVoice = '';
   let azureAudio = null;
   let azureTimers = [];
@@ -2222,11 +2246,34 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     if (langName !== 'Español') azureCharacterVoice = voice;
     const cacheKey = `${voice}|${set.code}|${rate || 1}|${text}`;
     if (ttsCache.has(cacheKey)) return ttsCache.get(cacheKey);
-    const ask = (v) => fetch('/api/tts', {
+    const askServer = (v) => fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, lang: set.code, voice: v, rate: rate || 1, key: state.azureKey, region: state.azureRegion })
     });
+    // Sin servidor (GitHub Pages): se le pide el audio a Azure directamente desde el navegador
+    const askAzure = (v) => {
+      const pct = Math.round(((rate || 1) - 1) * 100);
+      const xml = String(text).replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+      return fetch(`https://${encodeURIComponent(state.azureRegion)}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+        method: 'POST',
+        headers: {
+          'Ocp-Apim-Subscription-Key': state.azureKey,
+          'Content-Type': 'application/ssml+xml',
+          'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
+        },
+        body: `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${set.code}"><voice name="${v}"><lang xml:lang="${set.code}"><prosody rate="${pct}%">${xml}</prosody></lang></voice></speak>`
+      });
+    };
+    const ask = async (v) => {
+      if (azureDirect) return askAzure(v);
+      const r = await askServer(v);
+      if ((r.status === 404 || r.status === 405) && state.azureKey && state.azureRegion) {
+        azureDirect = true;
+        return askAzure(v);
+      }
+      return r;
+    };
     let res = await ask(voice);
     const safe = AZURE_SAFE[langName]?.[tutorGender];
     if (!res.ok && res.status !== 401 && safe) {
@@ -2235,6 +2282,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
+      if (res.status === 401) throw new Error('La clave de Azure no es válida o no corresponde a esa región.');
       throw new Error(err.error || `Azure respondió ${res.status}`);
     }
     const url = URL.createObjectURL(await res.blob());
