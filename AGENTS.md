@@ -53,7 +53,11 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
       - Las voces son las mismas de Edge: tabla `AZURE_VOICES`, mujer o hombre según el personaje.
       - Las voces "Multilingual" también dicen el español con el mismo timbre.
       - Si Azure falla, la app vuelve sola a la voz del navegador.
-    - Sin Azure, las voces del navegador se eligen en `pickVoice`: primero el mismo género que el personaje, después las "Natural", "Online" o "Multilingual".
+    - Sin Azure, las voces del navegador se eligen en `pickVoice`:
+      - Para el idioma del personaje: primero el mismo género que el personaje, después las "Natural", "Online" o "Multilingual".
+      - Para el español: la voz que eligió la persona en Configuración y, si no eligió, **"Google español"** (decisión de la dueña). A esa voz no se le cambia el tono.
+    - El profe de matemáticas es hombre (modelo `M`).
+    - En `avatar3d.js`, `fixDepth()` evita que el pelo se dibuje sobre la cara en algunas tarjetas de video.
     - Para callar cualquier voz se usa siempre `stopSpeech()`.
   - El avatar 2D de respaldo se anima alternando cuadros del mismo personaje (`avatarFrameUrl`, `mountLiveAvatar`, `setTalking`).
   - La voz va con `speakSequence`: el español se dice con voz en español y las frases del idioma meta con su voz. Nunca mezcles las dos en una sola frase.

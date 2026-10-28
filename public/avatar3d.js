@@ -18,6 +18,25 @@ let head = null;
 let node = null;
 let currentUrl = '';
 
+// En algunas tarjetas de video el pelo se dibujaba encima de la cara. Dos arreglos:
+// 1) la cámara solo mira hasta 30 m (antes 2000 m), así la profundidad tiene más precisión;
+// 2) pelo, cejas y pestañas se dibujan recortados (alphaTest) en vez de transparentes.
+function fixDepth() {
+  head.camera.far = 30;
+  head.camera.updateProjectionMatrix();
+  head.scene.traverse(o => {
+    if (!o.isMesh) return;
+    [].concat(o.material).forEach(mat => {
+      if (mat.transparent && /hair|lash|brow|eyelash/i.test(`${o.name} ${mat.name}`)) {
+        mat.transparent = false;
+        mat.alphaTest = 0.5;
+        mat.depthWrite = true;
+        mat.needsUpdate = true;
+      }
+    });
+  });
+}
+
 // Pinta la camiseta de un color liso (el modelo de hombre trae un logo estampado)
 function paintTop(color) {
   if (!color) return;
@@ -74,6 +93,7 @@ async function mount(el, model = 'F', top = '') {
     // la forma vieja). Se dibujan siempre todas las partes y se reencuadra la cámara.
     head.scene.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
     head.setView('head');
+    fixDepth();
   }
   paintTop(top || m.top);
   head.start();

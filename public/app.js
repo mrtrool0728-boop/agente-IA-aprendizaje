@@ -2024,7 +2024,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       callTutorName.textContent = 'Profe Yesion';
       callTutorLabel.textContent = 'Profe Yesion';
       callTutorFlag.removeAttribute('src');
-      mountTutor('Yesion', 'c7d2fe', { gender: 'F', model: 'F' });
+      // El profe de matemáticas es hombre
+      mountTutor('Yesion', 'c7d2fe', { gender: 'M', model: 'M', top: '#3730a3' });
 
       if (!state.hasLiveAI && window.MathCoach) {
         // Sin IA: ejercicios por niveles que revisan cada respuesta
@@ -2121,7 +2122,11 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       const chosen = localStorage.getItem(VOICE_ES_KEY);
       const saved = chosen && voiceCache.find(v => v.name === chosen);
       if (saved) return saved;
-      // 2) Si el personaje habla con una voz multilingüe, la misma voz dice el español
+      // 2) Por defecto, "Google español": la más fluida y la que menos suena a robot
+      const google = voiceCache.find(v => /google español de estados unidos/i.test(v.name))
+        || voiceCache.find(v => /google español/i.test(v.name));
+      if (google) return google;
+      // 3) Si el personaje habla con una voz multilingüe, la misma voz dice el español
       if (characterVoice && MULTILINGUAL_VOICE.test(characterVoice.name)) return characterVoice;
     }
 
@@ -2376,8 +2381,10 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       utter.pitch = natural ? 1 : 1.05;
       // Si el navegador no tiene voz del género del personaje en ese idioma, se ajusta el tono
       const voiceIsMale = voice && MALE_VOICE.test(voice.name) && !/female/i.test(voice.name);
-      if (tutorGender === 'M' && !voiceIsMale) utter.pitch = 0.6;
-      if (tutorGender === 'F' && voiceIsMale) utter.pitch = 1.35;
+      // (la voz Google español se deja tal cual: suena natural y así la eligió la dueña)
+      const keepAsIs = p.lang === 'Español' && voice && /google español/i.test(voice.name);
+      if (!keepAsIs && tutorGender === 'M' && !voiceIsMale) utter.pitch = 0.6;
+      if (!keepAsIs && tutorGender === 'F' && voiceIsMale) utter.pitch = 1.35;
       lipSync(utter, text, p.lang);
       utter.onstart = () => setTalking(true);
       const finish = () => {
