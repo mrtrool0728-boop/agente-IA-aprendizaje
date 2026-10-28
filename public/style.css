@@ -1,4 +1,4 @@
-/* Con Yesion Aprendes · Estilo claro, amable y altamente interactivo
+/* Con Yeison Aprendes · Estilo claro, amable y altamente interactivo
    Fondo claro, índigo como color de marca, Inter, tarjetas interactivas
    con esquinas redondeadas (16px), sombras suaves y micro-interacciones. */
 
@@ -69,7 +69,7 @@ a { color: var(--brand); text-underline-offset: 3px; }
   stroke-linecap: round; stroke-linejoin: round;
 }
 
-/* ---------- Barra superior con nueva marca: Con Yesion Aprendes ---------- */
+/* ---------- Barra superior con nueva marca: Con Yeison Aprendes ---------- */
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
@@ -181,7 +181,7 @@ a { color: var(--brand); text-underline-offset: 3px; }
   box-shadow: var(--shadow);
 }
 
-/* ---------- Card de Bienvenida / Hero con Yesion ---------- */
+/* ---------- Card de Bienvenida / Hero con Yeison ---------- */
 
 .welcome-card {
   display: flex;

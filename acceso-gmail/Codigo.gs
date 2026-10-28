@@ -1,4 +1,4 @@
-// Código de acceso por Gmail para "Con Yesion Aprendes".
+// Código de acceso por Gmail para "Con Yeison Aprendes".
 // Se pega en script.google.com y se implementa como "Aplicación web" (pasos en LEEME.md).
 // Envía los códigos a la cuenta de Google que implementa el script; no hace falta escribir el correo aquí.
 
@@ -46,7 +46,7 @@ function requestCode_(p) {
     MailApp.sendEmail(
       Session.getEffectiveUser().getEmail(),
       'Código de acceso: ' + code + ' (' + who + ')',
-      who + ' quiere entrar a Con Yesion Aprendes.\n\n' +
+      who + ' quiere entrar a Con Yeison Aprendes.\n\n' +
       'Código: ' + code + '\n' +
       'Vence en ' + CODE_MINUTES + ' minutos y sirve una sola vez.\n\n' +
       'Si no conoces a esta persona, no compartas el código.'

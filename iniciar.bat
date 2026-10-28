@@ -1,9 +1,9 @@
 @echo off
-title Con Yesion Aprendes - Tutor Educativo IA
+title Con Yeison Aprendes - Tutor Educativo IA
 cd /d "%~dp0"
 
 echo ======================================================
-echo       Iniciando Con Yesion Aprendes (IA)
+echo       Iniciando Con Yeison Aprendes (IA)
 echo ======================================================
 echo.
 echo 1. Abriendo la aplicacion interactiva en tu navegador...

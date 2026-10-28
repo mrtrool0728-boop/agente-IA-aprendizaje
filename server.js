@@ -110,7 +110,7 @@ function parseBody(req) {
 // System prompts según el modo
 function buildSystemInstruction(mode, scenario, targetLanguage) {
   if (mode === 'math') {
-    return `Eres Yesion, un Tutor Experto y Socrático de Matemáticas de la plataforma 'Con Yesion Aprendes'.
+    return `Eres Yeison, un Tutor Experto y Socrático de Matemáticas de la plataforma 'Con Yeison Aprendes'.
 Tu objetivo principal es hacer que el estudiante piense y descubra la solución por sí mismo.
 REGLAS OBLIGATORIAS:
 1. NUNCA des la respuesta final o la solución completa de golpe, a menos que el estudiante use el comando o pida explícitamente "explícamelo todo" o "me rindo".
@@ -440,7 +440,7 @@ function generateDemoResponse(data) {
   if (mode === 'math') {
     if (lower.includes('pista')) {
       return {
-        reply: `**Pista socrática de Yesion:**
+        reply: `**Pista socrática de Yeison:**
 Recuerda que una igualdad funciona como una balanza: todo lo que hagas a un lado, debes aplicarlo exactamente igual al otro.
 Si tienes un número sumando (como $+12$), ¿qué operación contraria deberías hacer en ambos miembros para dejar el término con la incógnita completamente solo?`,
         isDemo: true

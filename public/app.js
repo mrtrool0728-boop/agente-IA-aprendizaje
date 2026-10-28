@@ -1,4 +1,4 @@
-// Con Yesion Aprendes - Lógica del Frontend, Motor de Gamificación y Videollamada Interactiva
+// Con Yeison Aprendes - Lógica del Frontend, Motor de Gamificación y Videollamada Interactiva
 
 document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       + '&clothing=collarAndSweater,shirtCrewNeck,blazerAndShirt,blazerAndSweater';
   };
   const avatarUrl = (seed, bg) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
-  const MATH_AVATAR = avatarUrl('Yesion', 'c7d2fe');
+  const MATH_AVATAR = avatarUrl('Yeison', 'c7d2fe');
   // Un cuadro del mismo personaje con boca y ojos fijos; la videollamada alterna cuadros para animarlo
   const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default,raisedExcited`;
 
@@ -167,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.OmniFaces = { createFace, avatarUrl, flagUrl, FEMALE_NAMES };
 
-  // El Profe Yesion de las bandas de bienvenida también se mueve
+  // El Profe Yeison de las bandas de bienvenida también se mueve
   document.querySelectorAll('.welcome-avatar-wrap img.avatar').forEach(img => {
-    const face = createFace('Yesion', 'c7d2fe', 'face-xl');
+    const face = createFace('Yeison', 'c7d2fe', 'face-xl');
     img.replaceWith(face);
     face.closest('.welcome-card')?.addEventListener('mouseenter', () => face.talk(1400));
   });
@@ -240,13 +240,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let systemInstruction = '';
 
     if (mode === 'math') {
-      systemInstruction = `Eres Yesion, el Profesor Socrático de Matemáticas de 'Con Yesion Aprendes'.
+      systemInstruction = `Eres Yeison, el Profesor Socrático de Matemáticas de 'Con Yeison Aprendes'.
 Guía al estudiante paso a paso haciéndole preguntas clave para que descubra la solución por sí mismo.
 Escribe fórmulas en notación LaTeX ($...$). Si el alumno comete un error, explícale amablemente por qué ocurre y dale una pista.`;
     } else {
       const lang = targetLanguage || 'Inglés';
       const scen = scenario || 'Café';
-      systemInstruction = `Eres un Tutor Nativo de Idiomas de 'Con Yesion Aprendes'.
+      systemInstruction = `Eres un Tutor Nativo de Idiomas de 'Con Yeison Aprendes'.
 Estás conversando en el idioma: ${lang} dentro de la situación: "${scen}".
 1. Responde de forma natural y atractiva en el idioma meta (${lang}).
 2. Si el alumno es principiante o se equivoca, añade una línea con la traducción al español.
@@ -306,7 +306,7 @@ Estás conversando en el idioma: ${lang} dentro de la situación: "${scen}".
     if (mode === 'math') {
       if (lower.includes('pista')) {
         return {
-          reply: `**Pista socrática de Yesion:**
+          reply: `**Pista socrática de Yeison:**
 Recuerda que una ecuación es como una balanza: todo lo que hagas a la izquierda debes hacerlo exactamente igual a la derecha.
 Si tenemos una suma como $+12$, ¿qué operación contraria podemos aplicar a ambos lados para despejar la incógnita?`,
           isDemo: true
@@ -314,7 +314,7 @@ Si tenemos una suma como $+12$, ¿qué operación contraria podemos aplicar a am
       }
       if (lower.includes('rindo') || lower.includes('explícame') || lower.includes('explicame') || lower.includes('paso a paso')) {
         return {
-          reply: `**Explicación paso a paso del Profe Yesion:**
+          reply: `**Explicación paso a paso del Profe Yeison:**
 Resolvamos la ecuación:
 $$3x + 12 = 30$$
 
@@ -335,7 +335,7 @@ $$3x + 12 = 30$$
         reply: `¡Excelente ejercicio! Vamos a razonarlo juntos paso a paso:
 **${message || 'Tu ejercicio'}**
 
-💡 **Pregunta del Profe Yesion para empezar:**
+💡 **Pregunta del Profe Yeison para empezar:**
 ¿Cuál es la incógnita que queremos calcular y qué operaciones matemáticas la están acompañando ahora mismo?`,
         isDemo: true
       };
@@ -635,12 +635,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   function localMathChat(text) {
     if (!mathSession) {
       startMathExercise(nextMathExercise());
-      appendMessage(mathMessages, 'assistant', `Sin la IA conectada te guío con ejercicios por niveles y reviso cada respuesta. ${mathSession.intro()}`, 'Profe Yesion');
+      appendMessage(mathMessages, 'assistant', `Sin la IA conectada te guío con ejercicios por niveles y reviso cada respuesta. ${mathSession.intro()}`, 'Profe Yeison');
       return;
     }
     const out = mathAdvance(mathSession.answer(text));
-    appendMessage(mathMessages, 'assistant', out.say, 'Profe Yesion');
-    if (out.next) appendMessage(mathMessages, 'assistant', out.next, 'Profe Yesion');
+    appendMessage(mathMessages, 'assistant', out.say, 'Profe Yeison');
+    if (out.next) appendMessage(mathMessages, 'assistant', out.next, 'Profe Yeison');
   }
 
   // Clic en tarjetas de ejercicios de matemáticas
@@ -649,7 +649,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       // Sin IA: la tarjeta abre ese ejercicio guiado
       if (!state.hasLiveAI && elem.dataset.exercise && window.MathCoach?.byId(elem.dataset.exercise)) {
         startMathExercise(window.MathCoach.byId(elem.dataset.exercise));
-        appendMessage(mathMessages, 'assistant', mathSession.intro(), 'Profe Yesion');
+        appendMessage(mathMessages, 'assistant', mathSession.intro(), 'Profe Yeison');
         document.querySelector('.math-chat-card')?.scrollIntoView({ behavior: 'smooth' });
         return;
       }
@@ -694,12 +694,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       if (!state.hasLiveAI && window.MathCoach) {
         if (!mathSession) { localMathChat(''); return; }
         if (action === 'check') {
-          appendMessage(mathMessages, 'assistant', `Escríbeme tu respuesta y te digo si está bien. La pregunta es: ${mathSession.step.ask}`, 'Profe Yesion');
+          appendMessage(mathMessages, 'assistant', `Escríbeme tu respuesta y te digo si está bien. La pregunta es: ${mathSession.step.ask}`, 'Profe Yeison');
           return;
         }
         const out = mathAdvance(action === 'hint' ? mathSession.hint() : mathSession.explain());
-        appendMessage(mathMessages, 'assistant', out.say, 'Profe Yesion');
-        if (out.next) appendMessage(mathMessages, 'assistant', out.next, 'Profe Yesion');
+        appendMessage(mathMessages, 'assistant', out.say, 'Profe Yeison');
+        if (out.next) appendMessage(mathMessages, 'assistant', out.next, 'Profe Yeison');
         return;
       }
       if (action === 'hint') {
@@ -768,7 +768,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     // Sin IA: el profe local revisa la respuesta del ejercicio en curso
     if (!state.hasLiveAI && window.MathCoach) {
       if (imageToSend) {
-        appendMessage(mathMessages, 'assistant', 'Para leer fotos del cuaderno necesito la IA conectada (Gemini). Mientras tanto, te guío con los ejercicios de la biblioteca.', 'Profe Yesion');
+        appendMessage(mathMessages, 'assistant', 'Para leer fotos del cuaderno necesito la IA conectada (Gemini). Mientras tanto, te guío con los ejercicios de la biblioteca.', 'Profe Yeison');
         if (!mathSession) localMathChat('');
         return;
       }
@@ -777,7 +777,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
 
     state.mathHistory.push({ role: 'user', content: text || 'Revisa este problema de la imagen' });
-    const loadingElem = showLoadingBubble(mathMessages, 'Profe Yesion');
+    const loadingElem = showLoadingBubble(mathMessages, 'Profe Yeison');
 
     try {
       const data = await callChatService({
@@ -797,7 +797,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       }
 
       state.mathHistory.push({ role: 'assistant', content: data.reply });
-      appendMessage(mathMessages, 'assistant', data.reply, 'Profe Yesion');
+      appendMessage(mathMessages, 'assistant', data.reply, 'Profe Yeison');
 
       state.mathCount++;
       localStorage.setItem('omni_tutor_math_count', state.mathCount);
@@ -1345,7 +1345,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       levelCard.innerHTML = `
         <div class="level-top">
           <div>
-            <small>Tu progreso con Yesion</small>
+            <small>Tu progreso con Yeison</small>
             <b>Nivel ${rank}</b>
           </div>
           <div class="level-stats">
@@ -1771,7 +1771,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   function sayMath(text) {
     lastTutorPhrase = text;
     lastTutorTranslation = '';
-    setCaption('Profe Yesion', text);
+    setCaption('Profe Yeison', text);
     renderCallQuickChips([
       'Dame una pista',
       'Explícamelo paso a paso',
@@ -2098,11 +2098,11 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       // Clase de matemáticas: todo en español
       callMathBoard.style.display = 'block';
       callScenarioTitle.textContent = 'Clase de matemáticas';
-      callTutorName.textContent = 'Profe Yesion';
-      callTutorLabel.textContent = 'Profe Yesion';
+      callTutorName.textContent = 'Profe Yeison';
+      callTutorLabel.textContent = 'Profe Yeison';
       callTutorFlag.removeAttribute('src');
       // El profe de matemáticas es hombre
-      mountTutor('Yesion', 'c7d2fe', { gender: 'M', model: 'M', top: '#3730a3' });
+      mountTutor('Yeison', 'c7d2fe', { gender: 'M', model: 'M', top: '#3730a3' });
 
       if (!state.hasLiveAI && window.MathCoach) {
         // Sin IA: ejercicios por niveles que revisan cada respuesta
@@ -2116,7 +2116,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       lastTutorPhrase = mathGreeting;
       lastTutorTranslation = '';
       callHistory.push({ role: 'assistant', content: mathGreeting });
-      setCaption('Profe Yesion', mathGreeting);
+      setCaption('Profe Yeison', mathGreeting);
       setSuggestions('¿Cuál es el primer paso?', ['Dame una pista', 'Explícamelo paso a paso']);
 
       speakSequence([{ text: mathGreeting, lang: 'Español' }]);
@@ -2511,7 +2511,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
     if (callMode === 'math') {
       const msg = 'No te preocupes, vamos más despacio. Te doy una pista y lo vemos juntos.';
-      setCaption('Profe Yesion', msg);
+      setCaption('Profe Yeison', msg);
       speakSequence([{ text: msg, lang: 'Español' }], () => handleUserSpeechTurn('Dame una pista, por favor'));
       return;
     }
@@ -2667,7 +2667,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
 
     callHistory.push({ role: 'user', content: userText });
-    const tutorName = callMode === 'math' ? 'Profe Yesion' : currentScenario().name;
+    const tutorName = callMode === 'math' ? 'Profe Yeison' : currentScenario().name;
     const thinking = setTimeout(() => {
       if (callActive) setCaption(tutorName, 'Pensando…');
     }, 900);

@@ -15,13 +15,13 @@ En tu computador (`localhost`) nunca se pide código.
 1. Entra a **https://script.google.com** con la cuenta de Gmail donde quieres recibir los códigos.
 2. Toca **Nuevo proyecto**.
 3. Borra lo que aparece y pega todo el contenido de `Codigo.gs`.
-4. Arriba, cambia el nombre "Proyecto sin título" por **Acceso Con Yesion Aprendes** y guarda (ícono de disquete).
+4. Arriba, cambia el nombre "Proyecto sin título" por **Acceso Con Yeison Aprendes** y guarda (ícono de disquete).
 5. Toca **Implementar → Nueva implementación**.
 6. En el engranaje de "Seleccionar tipo", elige **Aplicación web** y llena:
    - **Ejecutar como:** Yo (tu correo).
    - **Quién tiene acceso:** Cualquier usuario.
 7. Toca **Implementar** y luego **Autorizar acceso**. Elige tu cuenta.
-   - Si aparece "Google no verificó esta aplicación", toca **Configuración avanzada → Ir a Acceso Con Yesion Aprendes (no seguro)**. Es seguro: el script es tuyo y solo envía correos a ti mismo.
+   - Si aparece "Google no verificó esta aplicación", toca **Configuración avanzada → Ir a Acceso Con Yeison Aprendes (no seguro)**. Es seguro: el script es tuyo y solo envía correos a ti mismo.
 8. Copia la **URL de la aplicación web**. Termina en `/exec`.
 9. Pégala en `public/gate-config.js` entre las comillas de `window.ACCESS_GATE_URL = '';` y publica el cambio. También puedes pasársela a Claude o a Antigravity para que lo hagan.
 

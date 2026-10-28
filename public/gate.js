@@ -15,7 +15,7 @@
   overlay.setAttribute('aria-labelledby', 'gate-title');
   overlay.innerHTML = `
     <div class="gate-card">
-      <div class="gate-logo">Con <span>Yesion</span> Aprendes</div>
+      <div class="gate-logo">Con <span>Yeison</span> Aprendes</div>
       <h1 id="gate-title">Acceso por invitación</h1>
       <p class="gate-text">La página está en lanzamiento. Pide un código: le llega al administrador y él te lo comparte.</p>
 

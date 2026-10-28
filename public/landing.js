@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Sarah', bg: 'ddd6fe', role: 'Entrevistadora', place: 'Entrevista de trabajo' },
     { name: 'Daniel', bg: 'bbf7d0', role: 'Recepción', place: 'Check-in en un hotel' },
     { name: 'Leo', bg: 'fecaca', role: 'Amigo', place: 'Charla en el parque' },
-    { name: 'Yesion', bg: 'c7d2fe', role: 'Profe de matemáticas', place: 'Clase paso a paso' }
+    { name: 'Yeison', bg: 'c7d2fe', role: 'Profe de matemáticas', place: 'Clase paso a paso' }
   ];
   const tutorsBox = document.getElementById('lp-tutors');
   TUTORS.forEach((t, i) => {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.setProperty('--i', i);
     const face = createFace(t.name, t.bg, 'face-tutor');
     card.appendChild(face);
-    card.insertAdjacentHTML('beforeend', `<h3>${t.name === 'Yesion' ? 'Profe Yesion' : t.name}</h3><p>${t.role}</p><small>${t.place}</small>`);
+    card.insertAdjacentHTML('beforeend', `<h3>${t.name === 'Yeison' ? 'Profe Yeison' : t.name}</h3><p>${t.role}</p><small>${t.place}</small>`);
     card.addEventListener('mouseenter', () => face.talk(1400));
     tutorsBox.appendChild(card);
   });
