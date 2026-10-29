@@ -101,3 +101,18 @@ El dueño pidió que la app se vea de calidad, no escolar. Las referencias de pa
 4. Texto que venga del usuario va con `esc()` antes de meterlo en HTML.
 5. Revisa en computador (1440 px) y en celular (390 px). En celular las pestañas van abajo y la corrección queda debajo del chat.
 6. Respeta "reducir movimiento": las animaciones ya se apagan con `prefers-reduced-motion`.
+
+## Rendimiento y celular
+
+- **Modo liviano:** `public/perf.js` se carga primero y decide si el equipo va en modo completo o liviano (clase `lite` en `<html>`).
+  - La preferencia se elige en Configuración y se guarda en `omni_tutor_perf` (`auto`, `full` o `lite`).
+  - En `auto` mira la memoria del equipo y el ahorro de datos. Si eso no basta, mide los cuadros por segundo al cargar (menos de 30 es liviano) y guarda el resultado en `sessionStorage`.
+  - En modo liviano no se carga el robot 3D, las caras de las tarjetas no ponen video (solo asienten) y no salen banderas tras el cursor.
+- **Acceso por invitación:** mientras se ve la pantalla del código no se dibuja la página (`.gate-locked`) ni se descarga el robot. El visor de Spline se carga desde `landing.js` (`<meta name="spline-viewer-src">`) después de `gate-open`.
+- **Celular:** como no hay mouse, cada 3,5 s habla una de las caras que se ven en pantalla.
+- **Voz en iPhone:**
+  - El primer toque desbloquea la voz (`unlockSpeech`).
+  - `cancelSynth` no cancela si no hay nada sonando.
+  - Si la primera frase no arranca en 2,5 s, se repite con la voz del sistema.
+  - El español nunca cambia de tono, porque suena a robot.
+  - "Google español" no existe en iPhone; allá se usa la mejor voz instalada.

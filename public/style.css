@@ -2403,3 +2403,12 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 /* Botón de videollamada en tinta, sin brillo morado que palpita */
 .btn-call { background: var(--ink); color: #fff; box-shadow: none; animation: none; font-weight: 600; }
 .btn-call:hover { background: #27272a; }
+/* Detrás de la pantalla de acceso no se dibuja nada: así escribir el nombre y el código no se pone lento */
+.gate-locked .landing, .gate-locked .app { display: none !important; }
+
+/* ---------- Modo liviano (perf.js): sin robot 3D, sin videos en tarjetas y menos animación ---------- */
+.lite .lp-robot, .lite .welcome-robot, .lite .lp-robot-hint { display: none !important; }
+.lite .lp-hero { grid-template-columns: 1fr; }
+.lite .flag-tile .flag-cloth img, .lite .flag-cloth::after, .lite .face-inner, .lite .face-photo img { animation: none; }
+.lite .face-real.talking img { animation: photo-talk .9s ease-in-out infinite; transform-origin: 50% 60%; }
+.lite .lp-in { animation-duration: .3s; }

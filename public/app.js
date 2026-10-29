@@ -169,6 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     el.talk = (ms = 1600) => {
       if (motionOff()) return;
+      // Modo liviano: sin video, solo asiente
+      if (document.documentElement.classList.contains('lite')) {
+        el.classList.add('talking');
+        clearTimeout(stopTimer);
+        stopTimer = setTimeout(() => el.classList.remove('talking'), ms);
+        return;
+      }
       if (!video) {
         video = document.createElement('video');
         video.muted = true;
@@ -221,6 +228,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return el;
   }
   window.OmniFaces = { createFace, avatarUrl, flagUrl, FEMALE_NAMES };
+
+  // En celular no hay mouse para "pasar por encima": cada pocos segundos habla una de las caras que se ven
+  if (window.matchMedia('(hover: none)').matches || navigator.maxTouchPoints > 0) {
+    setInterval(() => {
+      if (document.hidden || motionOff()) return;
+      const visible = [...document.querySelectorAll('.face-real')].filter(f => {
+        const r = f.getBoundingClientRect();
+        return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+      });
+      if (visible.length) visible[Math.floor(Math.random() * visible.length)].talk?.(2600);
+    }, 3500);
+  }
 
   // El Profe Yeison de las bandas de bienvenida también se mueve
   document.querySelectorAll('.welcome-avatar-wrap img.avatar').forEach(img => {
@@ -1860,6 +1879,28 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   }
 
   // El avatar 3D es opcional (Configuración): en algunas tarjetas de video se ve incompleto
+  // Rendimiento: automático, completo o liviano (perf.js lo aplica al cargar la página)
+  const perfSelect = document.getElementById('perf-select');
+  const perfStatus = document.getElementById('perf-status');
+  if (perfSelect) {
+    perfSelect.value = window.OMNI_PERF?.pref || 'auto';
+    const showPerf = () => {
+      perfStatus.textContent = document.documentElement.classList.contains('lite')
+        ? 'Ahora estás en modo liviano: sin robot 3D, sin videos en las tarjetas y con menos animaciones.'
+        : 'Ahora estás en modo completo.';
+    };
+    showPerf();
+    window.OMNI_PERF?.ready.then(showPerf);
+    perfSelect.addEventListener('change', () => {
+      try {
+        localStorage.setItem('omni_tutor_perf', perfSelect.value);
+        sessionStorage.removeItem('omni_tutor_perf_measured');
+      } catch (e) { /* sin almacenamiento */ }
+      perfStatus.textContent = 'Recargando para aplicar el cambio…';
+      setTimeout(() => location.reload(), 400);
+    });
+  }
+
   const AVATAR3D_KEY = 'omni_tutor_avatar3d';
   const avatar3dEnabled = () => { try { return localStorage.getItem(AVATAR3D_KEY) === '1'; } catch (e) { return false; } };
   const avatar3dToggle = document.getElementById('avatar3d-toggle');
@@ -2427,7 +2468,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     if (base === 'es') {
       // 1) La que eligió la persona en Configuración
       const chosen = localStorage.getItem(VOICE_ES_KEY);
-      const saved = chosen && voiceCache.find(v => v.name === chosen && !(IS_IOS && (v.localService === false || /enhanced|premium|mejorad|siri/i.test(v.name))));
+      const saved = chosen && voiceCache.find(v => v.name === chosen && !(IS_IOS && v.localService === false));
       if (saved) return saved;
       // 2) Por defecto, "Google español": la más fluida y la que menos suena a robot
       const google = defaultSpanishVoice();
@@ -2439,8 +2480,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     let best = null;
     let bestScore = -Infinity;
     voiceCache.forEach(v => {
-      // iPhone lista voces "mejoradas" o "premium" que a veces no están descargadas y no suenan
-      if (IS_IOS && (v.localService === false || /enhanced|premium|mejorad|siri/i.test(v.name))) return;
+      // En iPhone se descartan las voces que no están en el equipo; si la elegida no suena, speakBrowser repite con la del sistema
+      if (IS_IOS && v.localService === false) return;
       const lang = v.lang.replace('_', '-');
       const multi = MULTILINGUAL_VOICE.test(v.name);
       if (!lang.toLowerCase().startsWith(base) && !(multi && base === 'es')) return;
@@ -2750,11 +2791,11 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       // Las voces naturales ya suenan bien a velocidad normal; las básicas, un poco más lentas
       const natural = voice && NATURAL_VOICE.test(voice.name);
       utter.rate = p.rate || (natural ? 1 : (p.lang === 'Español' ? 0.95 : 0.9));
-      utter.pitch = natural ? 1 : 1.05;
+      utter.pitch = (natural || p.lang === 'Español') ? 1 : 1.05;
       // Si el navegador no tiene voz del género del personaje en ese idioma, se ajusta el tono
       const voiceIsMale = voice && MALE_VOICE.test(voice.name) && !/female/i.test(voice.name);
-      // (la voz Google español se deja tal cual: suena natural y así la eligió el dueño)
-      const keepAsIs = p.lang === 'Español' && voice && /google español/i.test(voice.name);
+      // El español se dice siempre con el tono natural de su voz: cambiarle el tono la hace sonar a robot
+      const keepAsIs = p.lang === 'Español';
       if (!keepAsIs && tutorGender === 'M' && !voiceIsMale) utter.pitch = 0.6;
       if (!keepAsIs && tutorGender === 'F' && voiceIsMale) utter.pitch = 1.35;
       lipSync(utter, text, p.lang);

@@ -62,6 +62,8 @@
     </div>`;
   document.body.appendChild(overlay);
   document.documentElement.classList.add('gate-locked');
+  // Despierta el servicio de códigos de Google mientras la persona escribe su nombre (la primera respuesta es lenta)
+  fetch(GATE_URL + (GATE_URL.includes('?') ? '&' : '?') + 'action=ping', { mode: 'no-cors' }).catch(() => {});
 
   const $ = (id) => overlay.querySelector('#' + id);
   const status = (msg, ok) => {
@@ -108,6 +110,7 @@
       try { sessionStorage.setItem(KEY, 'ok'); } catch (err) { /* sin almacenamiento */ }
       overlay.remove();
       document.documentElement.classList.remove('gate-locked');
+      window.dispatchEvent(new Event('gate-open'));
     } catch (err) {
       status('No hay conexión con el servicio de códigos. Revisa tu internet e intenta de nuevo.');
     } finally {

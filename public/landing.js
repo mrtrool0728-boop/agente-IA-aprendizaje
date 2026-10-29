@@ -8,6 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const ENTERED = 'omni_tutor_entered';
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // ---- El visor del robot (3,5 MB) se descarga después de pasar la pantalla de acceso ----
+  function loadRobotViewer() {
+    const src = document.querySelector('meta[name="spline-viewer-src"]')?.content;
+    if (!src || document.getElementById('spline-viewer-script')) return;
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.id = 'spline-viewer-script';
+    s.src = src;
+    document.head.appendChild(s);
+  }
+  // En modo liviano (perf.js) no se carga el robot
+  const loadIfFull = () => (window.OMNI_PERF?.ready || Promise.resolve(false)).then(lite => { if (!lite) loadRobotViewer(); });
+  if (root.classList.contains('gate-locked')) window.addEventListener('gate-open', loadIfFull, { once: true });
+  else loadIfFull();
+
   // ---- Robot 3D: uno solo, se muda entre la portada y la bienvenida de Idiomas (no se vuelve a descargar) ----
   const robot = landing.querySelector('.lp-robot-scene');
   const heroSlot = landing.querySelector('.lp-robot');
@@ -44,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let flagIndex = 0;
   let lastX = -999, lastY = -999, lastAt = 0;
   function dropFlag(trail, x, y) {
+    if (root.classList.contains('lite')) return;
     if (trail.childElementCount > 18) trail.firstElementChild.remove();
     const img = document.createElement('img');
     img.className = 'lp-trail-flag';

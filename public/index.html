@@ -44,6 +44,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 
   <link rel="stylesheet" href="style.css?v=dev">
+  <script src="perf.js?v=dev"></script>
   <!-- Avatar 3D de la videollamada (TalkingHead + three.js): app.js lo carga solo si está activado en Configuración.
        El importmap va antes de cualquier módulo para que el navegador lo acepte. -->
   <script type="importmap">
@@ -55,7 +56,7 @@
   </script>
   <meta name="avatar3d-src" content="avatar3d.js?v=dev">
   <!-- Robot 3D de la portada y de la bienvenida (landing.js lo mueve entre las dos) -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@splinetool/viewer@2.0.64/build/spline-viewer.js"></script>
+  <meta name="spline-viewer-src" content="https://cdn.jsdelivr.net/npm/@splinetool/viewer@2.0.64/build/spline-viewer.js">
   <!-- Si ya entró a la app en esta pestaña, se salta la portada (antes de pintar, sin parpadeo) -->
   <script>try { if (sessionStorage.getItem("omni_tutor_entered") === "1") document.documentElement.classList.add("app-open"); } catch (e) {}</script>
 </head>
@@ -1003,6 +1004,18 @@
               <input type="text" id="azure-region-input" placeholder="eastus" autocomplete="off">
             </label>
           </div>
+
+          <!-- Rendimiento (perf.js) -->
+          <h3 class="settings-section">Rendimiento</h3>
+          <label class="field">
+            <span>Modo de la página</span>
+            <select id="perf-select">
+              <option value="auto">Automático (recomendado)</option>
+              <option value="full">Completo: robot 3D, videos y animaciones</option>
+              <option value="lite">Liviano: para celulares lentos</option>
+            </select>
+          </label>
+          <p class="hint" id="perf-status"></p>
 
           <!-- Avatar de la videollamada -->
           <h3 class="settings-section">Avatar de la videollamada</h3>
