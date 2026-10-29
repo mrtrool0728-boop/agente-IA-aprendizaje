@@ -2330,3 +2330,51 @@ h1, h2, h3 { letter-spacing: -0.025em; }
   .lesson-actions .btn { flex: 1 1 100%; }
 }
 .scenes + .section-card-header { margin-top: 36px; }
+
+/* Clase de matemáticas: la pizarra arriba a la derecha (donde estaba la cámara del estudiante),
+   el profe libre a la izquierda y la cámara del estudiante pequeña, abajo dentro del video */
+.videocall-stage.is-math .call-math-board {
+  top: 28px; right: 28px; left: auto;
+  width: min(330px, 42%); max-width: none;
+  padding: 12px 14px;
+}
+.videocall-stage.is-math .math-board-content { font-size: 1.1rem; padding: 8px; }
+.videocall-stage.is-math .student-video-card {
+  top: auto; bottom: 52px; right: 12px;
+  width: 96px; height: 68px;
+  border-width: 1px; z-index: 6;
+}
+.videocall-stage.is-math .student-avatar-fallback span,
+.videocall-stage.is-math .camera-status-pill { display: none; }
+.videocall-stage.is-math .student-avatar-fallback .avatar { width: 30px; height: 30px; }
+
+/* Foto propia del profe: respira despacio y asiente al hablar */
+.face-photo img { animation: photo-breathe 6s ease-in-out infinite; transform-origin: 50% 60%; }
+.face-photo.talking img { animation: photo-talk .9s ease-in-out infinite; }
+@keyframes photo-breathe {
+  0%, 100% { transform: scale(1.02) translateY(0); }
+  50% { transform: scale(1.07) translateY(-1.5%); }
+}
+@keyframes photo-talk {
+  0%, 100% { transform: scale(1.05) rotate(0) translateY(0); }
+  35% { transform: scale(1.07) rotate(-1.5deg) translateY(-2%); }
+  70% { transform: scale(1.06) rotate(1.2deg) translateY(-0.5%); }
+}
+@media (max-width: 860px) {
+  .videocall-stage.is-math .call-math-board { top: 20px; right: 20px; width: 52%; }
+  .videocall-stage.is-math .student-video-card { width: 72px; height: 54px; bottom: 48px; right: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .face-photo img { animation: none; }
+}
+@media (max-width: 860px) {
+  .math-levels-bar { flex-wrap: wrap; max-width: 100%; }
+  .levels-pills { flex-wrap: wrap; }
+}
+.videocall-stage.is-math .live-real video { transform: none; }
+.math-left-col, .math-right-col { min-width: 0; }
+.math-card-formula, .active-formula-display, .math-board-content { overflow-x: auto; }
+@media (max-width: 860px) {
+  .math-two-columns { grid-template-columns: minmax(0, 1fr); }
+  .math-cards-grid { grid-template-columns: minmax(0, 1fr); }
+}

@@ -32,7 +32,8 @@ window.TUTOR_MEDIA = {
   'Takahashi':     { file: 'takahashi', pexels: 8048476, fx: 50, fy: 18, z: 1.5 },
   'Sato':          { file: 'sato',      pexels: 7845250, fx: 56, fy: 26, z: 2.2 },
   'Kenta':         { file: 'kenta',     pexels: 8136210, fx: 50, fy: 22, z: 1.3 },
-  'Yeison':        { file: 'yeison',    pexels: 6324572, fx: 27, fy: 27, z: 1.7 },
+  // photo: foto propia del profe fuera de la llamada (tarjetas, chat, portada); en la llamada se usa el video
+  'Yeison':        { file: 'yeison',    pexels: 6324572, fx: 27, fy: 27, z: 1.7, photo: 'yeison-foto' },
   'Yuki':          { file: 'yuki',      pexels: 8048249, fx: 50, fy: 30, z: 1.4 },
   'Mori':          { file: 'mori',      pexels: 8135999, fx: 52, fy: 31, z: 1.5 },
   'Haruto':        { file: 'haruto',    pexels: 4701496, fx: 40, fy: 33, z: 1.5 },

@@ -35,6 +35,7 @@ El dueño pidió que la app se vea de calidad, no escolar. Las referencias de pa
   - Son videos de Pexels, de licencia libre (pexels.com/license); el número `pexels` es el id del video.
   - Los personajes de las situaciones nuevas reutilizan la cara de un tutor de otro idioma (`SAME_AS`), pero nunca se repite una cara dentro del mismo idioma.
   - `avatarUrl()` devuelve la foto de la cara y `createFace()` la foto con su video al hablar. Si un personaje no tiene foto, se usa el dibujo de DiceBear.
+  - El Profe Yeison usa fuera de la llamada la foto del dueño (`photo: 'yeison-foto'`, clase `.face-photo`, que respira y asiente). Dentro de la llamada sigue con su video.
   - Para agregar una persona: baja la versión `sd_960_540` (o `sd_540_960`) de Pexels a `public/tutors/` y saca la foto y la cara.
 - **Banderas de tela:** las banderas de `flag-icons` (`flagUrl()`) van dentro de `.flag-cloth`, que les da pliegues, brillo y movimiento.
 - **Idiomas en dos pasos:** primero banderas + situaciones (`#lang-picker`), luego el chat (`#lang-chat`). Los `<select>` ocultos `#lang-select` y `#scenario-select` guardan la elección; no los borres.
@@ -78,6 +79,7 @@ El dueño pidió que la app se vea de calidad, no escolar. Las referencias de pa
   - El avatar 2D de respaldo se anima alternando cuadros del mismo personaje (`avatarFrameUrl`, `mountLiveAvatar`, `setTalking`).
   - La voz va con `speakSequence`: el español se dice con voz en español y las frases del idioma meta con su voz. Nunca mezcles las dos en una sola frase.
   - Los subtítulos y las respuestas sugeridas van en filas separadas, sin `position: absolute` encima del video.
+  - En la clase de matemáticas (`.videocall-stage.is-math`) la pizarra va arriba a la derecha, donde estaba la cámara del estudiante, y esa cámara pasa pequeña abajo, dentro del video del profe. En idiomas todo queda como antes.
   - El tutor guarda su propia historia (`callHistory`) para que la conversación avance.
 - **Portada:** `#landing` en `index.html` con `landing.js` (tutores animados, aparición al hacer scroll y paso a la app).
   - Se muestra al abrir. Al entrar se guarda `omni_tutor_entered` en `sessionStorage`, y el logo de la app vuelve a la portada.

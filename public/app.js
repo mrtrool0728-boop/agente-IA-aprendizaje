@@ -132,7 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   // Personas reales (tutors.js): foto y video en public/tutors/. Si un personaje no tiene, se usa el dibujo de DiceBear.
   const tutorMedia = (seed) => (window.TUTOR_MEDIA || {})[seed] || null;
-  const avatarUrl = (seed, bg) => tutorMedia(seed) ? `tutors/${tutorMedia(seed).file}-cara.jpg` : `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
+  const faceImage = (m) => `tutors/${m.photo || `${m.file}-cara`}.jpg`;
+  const avatarUrl = (seed, bg) => tutorMedia(seed) ? faceImage(tutorMedia(seed)) :`https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
   const MATH_AVATAR = avatarUrl('Yeison', 'c7d2fe');
   // Un cuadro del mismo personaje con boca y ojos fijos; la videollamada alterna cuadros para animarlo
   const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default,raisedExcited`;
@@ -148,9 +149,20 @@ document.addEventListener('DOMContentLoaded', () => {
     el.style.setProperty('--fx', `${m.fx}%`);
     el.style.setProperty('--fy', `${m.fy}%`);
     el.style.setProperty('--z', m.z);
-    el.innerHTML = `<img src="tutors/${m.file}-cara.jpg" alt="" loading="lazy" decoding="async">`;
+    el.innerHTML = `<img src="${faceImage(m)}" alt="" loading="lazy" decoding="async">`;
     let video = null;
     let stopTimer = null;
+    if (m.photo) {
+      // Foto propia: respira despacio y, al "hablar", asiente un poco
+      el.classList.add('face-photo');
+      el.talk = (ms = 1600) => {
+        if (motionOff()) return;
+        el.classList.add('talking');
+        clearTimeout(stopTimer);
+        stopTimer = setTimeout(() => el.classList.remove('talking'), ms);
+      };
+      return el;
+    }
     el.talk = (ms = 1600) => {
       if (motionOff()) return;
       if (!video) {
@@ -2301,6 +2313,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
 
     videocallOverlay.style.display = 'flex';
+
+    // En matemáticas la pizarra va donde estaba la cámara del estudiante y su cámara baja, más pequeña, dentro del video
+    const studentCard = document.getElementById('student-video-card');
+    callMathBoard.parentElement.classList.toggle('is-math', mode === 'math');
+    if (mode === 'math') tutorVideoCard.appendChild(studentCard);
+    else if (studentCard.parentElement !== callMathBoard.parentElement) tutorVideoCard.after(studentCard);
 
     if (mode === 'math') {
       // Clase de matemáticas: todo en español
