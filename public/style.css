@@ -2378,3 +2378,28 @@ h1, h2, h3 { letter-spacing: -0.025em; }
   .math-two-columns { grid-template-columns: minmax(0, 1fr); }
   .math-cards-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---------- Chat de idiomas en celular: encabezado en dos filas y más espacio para la conversación ---------- */
+@media (max-width: 860px) {
+  .chat { gap: 8px; }
+  .chat-head { flex-wrap: wrap; gap: 10px; padding: 4px 0 10px; }
+  .chat-head .avatar-lg { width: 44px; height: 44px; }
+  .who-block h1 { font-size: 1.05rem; font-weight: 650; line-height: 1.2; overflow-wrap: anywhere; }
+  .who-block p { font-size: .85rem; }
+  .chat-actions { display: flex; gap: 8px; width: 100%; }
+  .chat-actions .btn { flex: 1; height: 40px; padding: 0 12px; box-shadow: none; }
+  .flashcard-interactive { margin-bottom: 0; }
+  .flashcard-inner, .flashcard-back { padding: 10px 14px; }
+  .flashcard-front, .flashcard-back { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .flashcard-inner b { font-size: .95rem; }
+  .flashcard-hint { display: none; }
+  .messages { padding: 8px 2px; gap: 14px; }
+  .beginner-reply-bar { padding: 8px 10px; margin-bottom: 4px; }
+  .beginner-reply-label { display: none; }
+  .beginner-chips-group { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .beginner-chips-group::-webkit-scrollbar { display: none; }
+  .chip-beginner { flex: none; white-space: nowrap; }
+}
+/* Botón de videollamada en tinta, sin brillo morado que palpita */
+.btn-call { background: var(--ink); color: #fff; box-shadow: none; animation: none; font-weight: 600; }
+.btn-call:hover { background: #27272a; }

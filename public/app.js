@@ -2666,6 +2666,20 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     azureTimers = [];
   }
 
+  // iPhone y iPad: Safari solo deja hablar a la página después de una voz iniciada con un toque.
+  // Con el primer toque se dice una frase vacía en silencio y desde ahí el tutor ya puede hablar.
+  let speechUnlocked = false;
+  function unlockSpeech() {
+    if (speechUnlocked || !('speechSynthesis' in window)) return;
+    speechUnlocked = true;
+    try {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    } catch (e) { /* sin voz */ }
+  }
+  ['touchend', 'click'].forEach(ev => document.addEventListener(ev, unlockSpeech, { capture: true, passive: true }));
+
   // Dice varias frases seguidas, cada una con la voz de su idioma, y mueve la boca del avatar
   function speakSequence(parts, onDone) {
     stopSpeech();
@@ -2682,6 +2696,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   function speakBrowser(queue, onDone) {
     if (!('speechSynthesis' in window)) { setTalking(false); onDone?.(); return; }
     window.speechSynthesis.cancel();
+    activeUtterances.length = 0;
     queue.forEach((p, i) => {
       const text = speechText(p.text);
       const utter = new SpeechSynthesisUtterance(text);
@@ -2707,9 +2722,14 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       };
       utter.onend = finish;
       utter.onerror = finish;
+      // Safari a veces suelta las frases antes de decirlas si nadie las guarda
+      activeUtterances.push(utter);
       window.speechSynthesis.speak(utter);
     });
+    // En iPhone la voz a veces queda en pausa después de usar el micrófono
+    if (IS_IOS) setTimeout(() => window.speechSynthesis.resume(), 50);
   }
+  const activeUtterances = [];
 
   function speakTutorResponse(text, langName) {
     speakSequence([{ text, lang: langName }]);
