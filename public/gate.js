@@ -8,6 +8,28 @@
   if (!GATE_URL || isLocal) return;
   try { if (sessionStorage.getItem(KEY) === 'ok') return; } catch (e) { /* sin almacenamiento */ }
 
+  // Equipo del administrador: abre una vez la página con ?llave=... y queda recordado en ese navegador.
+  // En el código solo está la huella SHA-256 de la llave (ACCESS_OWNER_HASH), no la llave.
+  const OWNER_KEY = 'omni_tutor_owner_key';
+  const params = new URLSearchParams(location.search);
+  let ownerKey = params.get('llave');
+  if (ownerKey) {
+    params.delete('llave');
+    history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash);
+  } else {
+    try { ownerKey = localStorage.getItem(OWNER_KEY); } catch (e) { /* sin almacenamiento */ }
+  }
+  if (ownerKey && window.ACCESS_OWNER_HASH && window.crypto?.subtle) {
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(ownerKey)).then((buf) => {
+      const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== window.ACCESS_OWNER_HASH) { showGate(); return; }
+      try { localStorage.setItem(OWNER_KEY, ownerKey); } catch (e) { /* sin almacenamiento */ }
+    }, showGate);
+    return;
+  }
+  showGate();
+
+  function showGate() {
   const overlay = document.createElement('div');
   overlay.className = 'gate';
   overlay.setAttribute('role', 'dialog');
@@ -99,4 +121,5 @@
     $('gate-code').value = '';
     status('');
   });
+  }
 })();

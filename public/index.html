@@ -44,6 +44,17 @@
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 
   <link rel="stylesheet" href="style.css?v=dev">
+  <!-- Avatar 3D de la videollamada (TalkingHead + three.js): app.js lo carga solo si está activado en Configuración.
+       El importmap va antes de cualquier módulo para que el navegador lo acepte. -->
+  <script type="importmap">
+  { "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+    "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7.0/modules/talkinghead.mjs"
+  } }
+  </script>
+  <meta name="avatar3d-src" content="avatar3d.js?v=dev">
+  <!-- Robot 3D de la portada y de la bienvenida (landing.js lo mueve entre las dos) -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@splinetool/viewer@2.0.64/build/spline-viewer.js"></script>
   <!-- Si ya entró a la app en esta pestaña, se salta la portada (antes de pintar, sin parpadeo) -->
   <script>try { if (sessionStorage.getItem("omni_tutor_entered") === "1") document.documentElement.classList.add("app-open"); } catch (e) {}</script>
@@ -105,9 +116,8 @@
 
       <!-- Robot 3D de Spline que sigue el cursor; landing.js suelta banderas tras el cursor -->
       <div class="lp-robot lp-in" style="--d:2">
-        <spline-viewer class="lp-robot-scene" url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" loading-anim-type="spinner-small-light" aria-label="Robot que sigue el cursor"></spline-viewer>
+        <spline-viewer class="lp-robot-scene" url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" loading-anim-type="spinner-small-light" events-target="global" aria-label="Robot que sigue el cursor"></spline-viewer>
       </div>
-      <div class="lp-trail" id="lp-trail" aria-hidden="true"></div>
     </section>
 
     <!-- Cifras reales de lo que trae -->
@@ -313,6 +323,8 @@
               <h1>¡Hola! Con Yeison aprendes idiomas conversando</h1>
               <p>Elige un idioma y una situación real. Yo o mis amigos nativos hablaremos contigo y te corregiremos frase por frase para que suenes 100% natural.</p>
             </div>
+            <!-- El robot de la portada se muda aquí al entrar (landing.js) -->
+            <div class="welcome-robot" id="app-robot-slot"></div>
           </div>
 
           <!-- Cards de selección de idiomas -->
@@ -996,15 +1008,6 @@
 
   </div>
 
-  <!-- Avatar 3D de la videollamada (TalkingHead + three.js). Si no carga, app.js usa el avatar 2D -->
-  <script type="importmap">
-  { "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
-    "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7.0/modules/talkinghead.mjs"
-  } }
-  </script>
-  <script type="module" src="avatar3d.js?v=dev"></script>
   <!-- Acceso por invitación (código a Gmail) -->
   <script src="gate-config.js?v=dev"></script>
   <script src="gate.js?v=dev"></script>

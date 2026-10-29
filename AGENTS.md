@@ -40,6 +40,7 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
     - Los modelos están en `public/avatars/` (`avaturn.glb` para mujeres y `avatarsdk.glb` para hombres). Su licencia es de uso no comercial: si el proyecto se vuelve comercial, hay que reemplazarlos.
     - Los labios se mueven palabra por palabra con la voz del navegador (`lipSync` en `app.js`).
     - Si el 3D no carga, se ve el avatar 2D de respaldo.
+    - `avatar3d.js` y three.js solo se descargan cuando el 3D está activado (`mountTutor` los agrega; la ruta con versión está en `<meta name="avatar3d-src">`). El importmap va en el `<head>`, antes de cualquier módulo.
   - Sin IA conectada, la llamada sigue guiones con 3 respuestas sugeridas por pregunta:
     - El nivel 1 está en `public/dialogues.js` y los niveles 2 y 3 en `public/dialogues-levels.js`.
     - En los niveles 2 y 3 la traducción y las respuestas solo aparecen si la persona toca "Sugerir respuestas".
@@ -69,10 +70,11 @@ La dueña eligió como referencia https://gliglish.com/intl/es y https://start.p
 - **Portada:** `#landing` en `index.html` con `landing.js` (tutores animados, aparición al hacer scroll y paso a la app).
   - Se muestra al abrir. Al entrar se guarda `omni_tutor_entered` en `sessionStorage`, y el logo de la app vuelve a la portada.
   - Las caras animadas salen de `createFace()` en `app.js` (`window.OmniFaces`).
-  - Arriba hay un robot 3D de Spline que sigue el cursor: `<spline-viewer>` (visor `@splinetool/viewer` 2.0.64 desde jsDelivr, sin React ni npm). La escena es `prod.spline.design/kZDDjO5HuC9GJUM2`, de una cuenta ajena: si deja de cargar, hay que cambiarla.
+  - Arriba hay un robot 3D de Spline que sigue el cursor (también en la bienvenida de Idiomas: `landing.js` mueve el mismo `<spline-viewer>` a `#app-robot-slot`, sin volver a descargarlo; se pausa cuando no se ve y dibuja a máximo 1.25 de resolución): `<spline-viewer>` (visor `@splinetool/viewer` 2.0.64 desde jsDelivr, sin React ni npm). La escena es `prod.spline.design/kZDDjO5HuC9GJUM2`, de una cuenta ajena: si deja de cargar, hay que cambiarla.
   - Al mover el cursor (o tocar en celular) salen banderitas que suben y se desvanecen (`#lp-trail`, `dropFlag` en `landing.js`). Con "reducir movimiento" no salen.
 - **Versión de archivos:** los `?v=dev` de `index.html` los cambia el workflow de Pages por el commit, para que el navegador no use copias viejas. No los quites.
 - **Acceso por invitación:** `public/gate.js` muestra la pantalla de código si `public/gate-config.js` tiene la URL del Apps Script (`acceso-gmail/`). El código llega al Gmail de la dueña. Con la URL vacía, la página se abre sin código.
+  - El equipo del administrador no pide código: abre una vez la página con `?llave=...` y queda guardada en `omni_tutor_owner_key`. En `gate-config.js` solo está la huella SHA-256 (`ACCESS_OWNER_HASH`); nunca subas la llave.
 - **Íconos:** solo los SVG de `index.html` (`<svg class="ico"><use href="#i-…"/></svg>`).
 
 **Prohibido:** emojis como íconos, fondos oscuros con neón, degradados en texto, efecto vidrio, bordes gruesos de color a un lado de tarjetas.

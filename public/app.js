@@ -1673,7 +1673,14 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       if (!window.Avatar3D) {
         await new Promise((resolve, reject) => {
           window.addEventListener('avatar3d-ready', resolve, { once: true });
-          setTimeout(() => reject(new Error('avatar3d.js no cargó')), 8000);
+          if (!document.getElementById('avatar3d-script')) {
+            const s = document.createElement('script');
+            s.type = 'module';
+            s.id = 'avatar3d-script';
+            s.src = document.querySelector('meta[name="avatar3d-src"]')?.content || 'avatar3d.js';
+            document.head.appendChild(s);
+          }
+          setTimeout(() => reject(new Error('avatar3d.js no cargó')), 20000);
         });
       }
       await window.Avatar3D.mount(avatar3dNode, profile.model, profile.top);
