@@ -1,6 +1,6 @@
 # Código de acceso por Gmail
 
-Mientras la página está en lanzamiento, quien la abre debe pedir un código. El código le llega a la dueña por Gmail y ella decide si lo comparte.
+Mientras la página está en lanzamiento, quien la abre debe pedir un código. El código le llega al dueño por Gmail y él decide si lo comparte.
 
 ## Cómo funciona
 

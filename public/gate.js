@@ -1,5 +1,5 @@
 // Pantalla de "Acceso por invitación" mientras la página está en lanzamiento.
-// Quien entra pide un código; el código le llega a la dueña por Gmail (acceso-gmail/Codigo.gs) y ella lo comparte.
+// Quien entra pide un código; el código le llega al dueño por Gmail (acceso-gmail/Codigo.gs) y él lo comparte.
 // El acceso dura mientras la pestaña esté abierta (sessionStorage). En el computador local no se pide.
 (function () {
   const GATE_URL = window.ACCESS_GATE_URL;

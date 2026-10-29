@@ -113,6 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const flagUrl = (code) => `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${code}.svg`;
   // Rasgos según el género del personaje: peinados de mujer o de hombre y pelo de colores naturales (sin canas)
   const FEMALE_NAMES = ['Emma', 'Sarah', 'Amélie', 'Chloé', 'Claudia', 'Giulia', 'Sofia', 'Sakura'];
+
+  // Situaciones nuevas (dialogues-more.js): restaurante, farmacia, tienda y transporte
+  const MORE_KEYS = window.MORE_SCENES?.order || [];
+  Object.entries(window.MORE_SCENES?.cards || {}).forEach(([lang, scenes]) => {
+    Object.assign(LANG_SCENARIOS_DATA[lang] = LANG_SCENARIOS_DATA[lang] || {}, scenes);
+    Object.values(scenes).forEach(sc => { if (sc.female && !FEMALE_NAMES.includes(sc.name)) FEMALE_NAMES.push(sc.name); });
+  });
   const HAIR_F = 'bob,bun,curly,curvy,longButNotTooLong,miaWallace,straight01,straight02,straightAndStrand,bigHair,fro';
   const HAIR_M = 'shortFlat,shortRound,shortWaved,shortCurly,theCaesar,theCaesarAndSidePart,sides,dreads01,frizzle';
   const HAIR_COLORS = '2c1b18,4a312c,724133,a55728,b58143,d6b370,c93305';
@@ -123,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
       + '&accessoriesProbability=15&accessories=prescription01,prescription02,round'
       + '&clothing=collarAndSweater,shirtCrewNeck,blazerAndShirt,blazerAndSweater';
   };
-  const avatarUrl = (seed, bg) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
+  // Personas reales (tutors.js): foto y video en public/tutors/. Si un personaje no tiene, se usa el dibujo de DiceBear.
+  const tutorMedia = (seed) => (window.TUTOR_MEDIA || {})[seed] || null;
+  const avatarUrl = (seed, bg) => tutorMedia(seed) ? `tutors/${tutorMedia(seed).file}-cara.jpg` : `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&backgroundColor=${bg}&radius=50&mouth=smile,default&eyes=happy,default&eyebrows=default,raisedExcited`;
   const MATH_AVATAR = avatarUrl('Yeison', 'c7d2fe');
   // Un cuadro del mismo personaje con boca y ojos fijos; la videollamada alterna cuadros para animarlo
   const avatarFrameUrl = (seed, mouth, eyes) => `https://api.dicebear.com/9.x/avataaars/svg?${avatarTraits(seed)}&mouth=${mouth}&eyes=${eyes}&eyebrows=default,raisedExcited`;
@@ -131,7 +140,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cara animada: cuadros del mismo personaje que se alternan. Parpadea sola, se balancea
   // y con face.talk() mueve la boca. La usan las tarjetas, la bienvenida y la portada (landing.js).
   const motionOff = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Con persona real: foto de la cara; face.talk() pone su video unos segundos
+  function createRealFace(m, sizeClass) {
+    const el = document.createElement('span');
+    el.className = `face face-real ${sizeClass}`.trim();
+    el.setAttribute('aria-hidden', 'true');
+    el.style.setProperty('--fx', `${m.fx}%`);
+    el.style.setProperty('--fy', `${m.fy}%`);
+    el.style.setProperty('--z', m.z);
+    el.innerHTML = `<img src="tutors/${m.file}-cara.jpg" alt="" loading="lazy" decoding="async">`;
+    let video = null;
+    let stopTimer = null;
+    el.talk = (ms = 1600) => {
+      if (motionOff()) return;
+      if (!video) {
+        video = document.createElement('video');
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.src = `tutors/${m.file}.mp4`;
+        el.appendChild(video);
+      }
+      video.play().then(() => el.classList.add('talking')).catch(() => {});
+      clearTimeout(stopTimer);
+      stopTimer = setTimeout(() => { el.classList.remove('talking'); video.pause(); }, ms);
+    };
+    return el;
+  }
+
   function createFace(seed, bg, sizeClass = '') {
+    if (tutorMedia(seed)) return createRealFace(tutorMedia(seed), sizeClass);
     const el = document.createElement('span');
     el.className = `face ${sizeClass}`.trim();
     el.style.setProperty('--face-bg', `#${bg}`);
@@ -335,7 +374,7 @@ $$3x + 12 = 30$$
         reply: `¡Excelente ejercicio! Vamos a razonarlo juntos paso a paso:
 **${message || 'Tu ejercicio'}**
 
-💡 **Pregunta del Profe Yeison para empezar:**
+**Pregunta del Profe Yeison para empezar:**
 ¿Cuál es la incógnita que queremos calcular y qué operaciones matemáticas la están acompañando ahora mismo?`,
         isDemo: true
       };
@@ -549,7 +588,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
       document.querySelectorAll('#math-cards-catalog .math-card-item').forEach(card => {
         const cardLevel = card.getAttribute('data-level-tag');
-        if (level === 'all' || cardLevel === level) {
+        // "Todos" muestra colegio; la universidad tiene su propio filtro para no alargar la lista
+        if ((level === 'all' && cardLevel !== 'universidad') || cardLevel === level) {
           card.style.display = 'flex';
         } else {
           card.style.display = 'none';
@@ -575,16 +615,16 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     const MC = window.MathCoach;
     const p = mathProgress();
     let pending = MC.ofLevel(p.level).filter(e => !p.done.includes(e.id));
-    if (!pending.length && p.level < 3) {
+    if (!pending.length && p.level < MC.maxLevel) {
       p.level++;
       saveMathProgress(p);
       pending = MC.ofLevel(p.level).filter(e => !p.done.includes(e.id));
     }
     if (!pending.length) {
-      // Nivel 3 completo: se vuelve a practicar desde el principio del nivel
-      p.done = p.done.filter(id => MC.byId(id)?.level !== 3);
+      // Último nivel completo: se vuelve a practicar desde el principio del nivel
+      p.done = p.done.filter(id => MC.byId(id)?.level !== MC.maxLevel);
       saveMathProgress(p);
-      pending = MC.ofLevel(3);
+      pending = MC.ofLevel(MC.maxLevel);
     }
     return pending[0];
   }
@@ -641,6 +681,29 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     const out = mathAdvance(mathSession.answer(text));
     appendMessage(mathMessages, 'assistant', out.say, 'Profe Yeison');
     if (out.next) appendMessage(mathMessages, 'assistant', out.next, 'Profe Yeison');
+  }
+
+  // Tarjetas de los niveles universitarios (salen de math-coach.js; los demás niveles están en index.html)
+  const mathCatalog = document.getElementById('math-cards-catalog');
+  if (mathCatalog && window.MathCoach) {
+    window.MathCoach.EXERCISES.filter(ex => ex.level >= 4).forEach(ex => {
+      const card = document.createElement('div');
+      card.className = 'card math-card-item';
+      card.dataset.exercise = ex.id;
+      card.dataset.levelTag = 'universidad';
+      card.dataset.mathPrompt = `Profe Yeison, explícame paso a paso: ${ex.title}. ${ex.desc}`;
+      card.innerHTML = `
+        <div class="math-card-top">
+          <span class="math-tag">${esc(window.MathCoach.LEVEL_NAMES[ex.level])}</span>
+          <span class="math-xp-tag">+20 XP</span>
+        </div>
+        <h3>${esc(ex.title)}</h3>
+        <div class="math-card-formula">$$${esc(ex.tex)}$$</div>
+        <p>${esc(ex.desc)}</p>
+        <button class="btn btn-soft btn-full">Resolver con el Profe</button>`;
+      card.style.display = 'none';
+      mathCatalog.appendChild(card);
+    });
   }
 
   // Clic en tarjetas de ejercicios de matemáticas
@@ -828,7 +891,13 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const flagGrid = document.getElementById('flag-grid');
   const sceneGrid = document.getElementById('scene-grid');
 
+  // Las situaciones nuevas guardan su clave tal cual en el <select>
+  MORE_KEYS.forEach(key => {
+    if (![...scenarioSelect.options].some(o => o.value === key)) scenarioSelect.add(new Option(key, key));
+  });
+
   function getScenarioKey(scName) {
+    if (MORE_KEYS.includes(scName)) return scName;
     if (scName.includes('Café') || scName.includes('Kaffee') || scName.includes('Caffè') || scName.includes('Paris')) return 'Café';
     if (scName.includes('Aeropuerto') || scName.includes('Aéroport') || scName.includes('Flughafen') || scName.includes('Aeroporto') || scName.includes('Narita')) return 'Aeropuerto';
     if (scName.includes('Entrevista') || scName.includes('Entretien') || scName.includes('Bewerbungsgespräch') || scName.includes('Colloquio')) return 'Entrevista';
@@ -846,6 +915,117 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const currentLang = () => LANGS.find(l => l.value === langSelect.value) || LANGS[0];
   const scenarioAvatar = () => avatarUrl(currentScenario().name, currentScenario().bg);
 
+  // ---- Lecciones de vocabulario y gramática (lessons.js), para estudiar sin IA ----
+  const LESSONS_DONE_KEY = 'omni_tutor_lessons_done';
+  const lessonGrid = document.getElementById('lesson-grid');
+  const lessonModal = document.getElementById('lesson-modal');
+  const lessonBody = document.getElementById('lesson-body');
+  const lessonsOf = (lang) => (window.LESSONS || {})[lang] || [];
+  function lessonsDone() {
+    try { return JSON.parse(localStorage.getItem(LESSONS_DONE_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function renderLessons() {
+    if (!lessonGrid) return;
+    const done = lessonsDone();
+    lessonGrid.innerHTML = lessonsOf(langSelect.value).map(l => `
+      <button class="lesson-card" data-lesson="${l.id}">
+        <span class="lesson-kind">${esc(l.kind)}</span>
+        <b>${esc(l.title)}</b>
+        <small>${l.items.length} frases · quiz de ${l.quiz.length}</small>
+        ${done[l.id] !== undefined ? `<span class="lesson-done">${icon('i-check')} ${done[l.id]} de ${l.quiz.length}</span>` : ''}
+      </button>`).join('');
+  }
+
+  function showLessonModal(show) {
+    lessonModal.style.display = show ? 'flex' : 'none';
+    if (!show) { stopSpeech(); renderLessons(); }
+  }
+
+  function openLesson(id) {
+    const lang = langSelect.value;
+    const l = lessonsOf(lang).find(x => x.id === id);
+    if (!l) return;
+    document.getElementById('lesson-title').textContent = l.title;
+    document.getElementById('lesson-sub').textContent = `${l.kind} · ${lang}`;
+    lessonBody.innerHTML = `
+      <p class="lesson-tip">${esc(l.tip)}</p>
+      <ul class="lesson-items">
+        ${l.items.map((it, i) => `
+          <li>
+            <button class="lesson-say" data-i="${i}" aria-label="Escuchar: ${esc(it[0])}">${icon('i-volume')}</button>
+            <span><b>${esc(it[0])}</b><small>${esc(it[1] || '')}</small></span>
+          </li>`).join('')}
+      </ul>
+      <button class="btn btn-primary btn-full" id="btn-lesson-quiz">Hacer el quiz</button>`;
+    lessonBody.querySelectorAll('.lesson-say').forEach(b => b.addEventListener('click', () => {
+      speakSequence([{ text: l.items[Number(b.dataset.i)][0], lang }]);
+    }));
+    document.getElementById('btn-lesson-quiz').addEventListener('click', () => runLessonQuiz(l, lang));
+    showLessonModal(true);
+    lessonBody.scrollTop = 0;
+  }
+
+  function runLessonQuiz(l, lang) {
+    let i = 0;
+    let score = 0;
+    const show = () => {
+      if (i >= l.quiz.length) { finish(); return; }
+      const [q, correct, ...wrong] = l.quiz[i];
+      const opts = [correct, ...wrong].sort(() => Math.random() - 0.5);
+      lessonBody.innerHTML = `
+        <div class="lesson-progress"><span style="width:${(i / l.quiz.length) * 100}%"></span></div>
+        <small class="lesson-count">Pregunta ${i + 1} de ${l.quiz.length}</small>
+        <p class="lesson-q">${esc(q)}</p>
+        <div class="lesson-opts">${opts.map(o => `<button class="lesson-opt">${esc(o)}</button>`).join('')}</div>
+        <p class="lesson-feedback" role="status"></p>`;
+      lessonBody.querySelectorAll('.lesson-opt').forEach(btn => btn.addEventListener('click', () => {
+        const ok = btn.textContent === correct;
+        if (ok) score++;
+        lessonBody.querySelectorAll('.lesson-opt').forEach(b => {
+          b.disabled = true;
+          if (b.textContent === correct) b.classList.add('is-ok');
+        });
+        if (!ok) btn.classList.add('is-wrong');
+        const fb = lessonBody.querySelector('.lesson-feedback');
+        fb.textContent = ok ? '¡Correcto!' : `La respuesta es: ${correct}`;
+        fb.classList.toggle('is-ok', ok);
+        const next = document.createElement('button');
+        next.className = 'btn btn-primary btn-full';
+        next.textContent = i + 1 < l.quiz.length ? 'Siguiente pregunta' : 'Ver mi resultado';
+        next.addEventListener('click', () => { i++; show(); });
+        lessonBody.appendChild(next);
+        next.focus();
+      }));
+    };
+    const finish = () => {
+      const done = lessonsDone();
+      done[l.id] = Math.max(done[l.id] || 0, score);
+      try { localStorage.setItem(LESSONS_DONE_KEY, JSON.stringify(done)); } catch (e) { /* sin almacenamiento */ }
+      if (score) addXP(score * 5, 'Lección de idiomas');
+      const perfect = score === l.quiz.length;
+      lessonBody.innerHTML = `
+        <p class="lesson-result"><b>${score} de ${l.quiz.length}</b>${perfect ? '¡Perfecto! Dominas esta lección.' : 'Repasa las frases y vuelve a intentarlo.'}</p>
+        <div class="lesson-actions">
+          <button class="btn btn-soft" id="btn-lesson-review">Repasar la lección</button>
+          <button class="btn btn-soft" id="btn-lesson-retry">Repetir el quiz</button>
+          <button class="btn btn-primary" id="btn-lesson-close">Listo</button>
+        </div>`;
+      document.getElementById('btn-lesson-review').addEventListener('click', () => openLesson(l.id));
+      document.getElementById('btn-lesson-retry').addEventListener('click', () => runLessonQuiz(l, lang));
+      document.getElementById('btn-lesson-close').addEventListener('click', () => showLessonModal(false));
+    };
+    show();
+  }
+
+  lessonGrid?.addEventListener('click', (e) => {
+    const card = e.target.closest('.lesson-card');
+    if (card) openLesson(card.dataset.lesson);
+  });
+  document.getElementById('btn-close-lesson')?.addEventListener('click', () => showLessonModal(false));
+  lessonModal?.addEventListener('click', (e) => { if (e.target === lessonModal) showLessonModal(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lessonModal?.style.display === 'flex') showLessonModal(false); });
+
   // Renderizar banderas y tarjetas de situaciones auténticas en el idioma elegido
   function renderPicker() {
     const lang = langSelect.value;
@@ -853,7 +1033,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
     flagGrid.innerHTML = LANGS.map(l => `
       <button class="flag-tile ${l.value === langSelect.value ? 'selected' : ''}" role="radio" aria-checked="${l.value === langSelect.value}" data-lang="${l.value}">
-        <img src="${flagUrl(l.flag)}" alt="">
+        <span class="flag-cloth"><img src="${flagUrl(l.flag)}" alt=""></span>
         <b>${l.native}</b><small>${l.value}</small>
       </button>`).join('');
 
@@ -874,6 +1054,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       slot.replaceWith(face);
       face.closest('.scene-card').addEventListener('mouseenter', () => face.talk(1200));
     });
+    renderLessons();
   }
 
   flagGrid.addEventListener('click', (e) => {
@@ -1625,6 +1806,18 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function mountLiveAvatar(seed, bg) {
+    const m = tutorMedia(seed);
+    tutorVideoCard.classList.toggle('is-real', Boolean(m));
+    if (m) {
+      // Persona real: el video corre mientras habla y se queda quieto mientras escucha
+      avatarLiveStage.innerHTML = `
+        <div class="live-avatar live-real" style="--fx:${m.fx}%;--fy:${m.fy}%;--z:${m.z}">
+          <video muted loop playsinline preload="auto" poster="tutors/${m.file}.jpg" src="tutors/${m.file}.mp4"></video>
+        </div>`;
+      tutorVideoCard.style.setProperty('--scene-bg', `#${bg}`);
+      clearTimeout(blinkTimer);
+      return;
+    }
     const frame = (mouth, eyes) => avatarFrameUrl(seed, mouth, eyes);
     avatarLiveStage.innerHTML = `
       <div class="live-avatar" data-mouth="rest">
@@ -1699,6 +1892,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     tutorSpeakingRing.classList.toggle('active', on);
     tutorVideoCard.classList.toggle('speaking', on);
     if (!on && use3D) window.Avatar3D?.talkStop();
+    const realVideo = avatarLiveStage.querySelector('.live-real video');
+    if (realVideo && !use3D) {
+      if (on && !reduceMotion.matches) realVideo.play().catch(() => {});
+      else realVideo.pause();
+      return;
+    }
     if (!face || use3D) return;
     face.dataset.mouth = 'rest';
     if (on && !reduceMotion.matches) {
@@ -1789,7 +1988,9 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
   // ---- Niveles por idioma: nivel actual y situaciones terminadas en cada nivel ----
   const CALL_PROGRESS_KEY = 'omni_tutor_call_progress';
-  const SCENE_ORDER = ['Café', 'Aeropuerto', 'Entrevista', 'Hotel', 'amigo'];
+  const SCENE_ORDER = ['Café', 'Aeropuerto', 'Entrevista', 'Hotel', 'amigo', ...MORE_KEYS];
+  // Para subir de nivel basta con terminar 5 situaciones cualquiera del nivel
+  const LEVEL_GOAL = 5;
   const LEVEL_LABEL = { 1: 'Nivel 1 · Principiante', 2: 'Nivel 2 · Intermedio', 3: 'Nivel 3 · Avanzado' };
   const PRONUNCIATION_OK = 0.8;
   let callLevel = 1;
@@ -1984,12 +2185,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     lp.done[callLevel] = [...done];
     let wrap = '¡Lo hiciste muy bien! Terminamos esta conversación.';
     let levelUp = false;
-    if (done.size >= SCENE_ORDER.length && callLevel < 3 && lp.level === callLevel) {
+    if (done.size >= LEVEL_GOAL && callLevel < 3 && lp.level === callLevel) {
       lp.level = callLevel + 1;
       levelUp = true;
-      wrap = `¡Felicitaciones! Completaste todas las situaciones y subiste al nivel ${lp.level}. Desde ahora la traducción y las respuestas quedan ocultas: pídelas con Sugerir respuestas.`;
+      wrap = `¡Felicitaciones! Completaste cinco situaciones y subiste al nivel ${lp.level}. Desde ahora la traducción y las respuestas quedan ocultas: pídelas con Sugerir respuestas.`;
     } else if (lp.level === callLevel) {
-      wrap += ` Llevas ${done.size} de ${SCENE_ORDER.length} situaciones de este nivel.`;
+      wrap += ` Llevas ${done.size} de ${LEVEL_GOAL} situaciones de este nivel.`;
     }
     saveLangProgress(lang, lp);
     addXP(levelUp ? 100 : 30, levelUp ? `¡Subiste al nivel ${lp.level}!` : 'Conversación completada');
@@ -2242,7 +2443,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   const voiceEsSelect = document.getElementById('voice-es-select');
   const btnTestVoiceEs = document.getElementById('btn-test-voice-es');
 
-  // Voz en español por defecto: "Google español" (elección de la dueña)
+  // Voz en español por defecto: "Google español" (elección del dueño)
   function defaultSpanishVoice() {
     return voiceCache.find(v => /^google español$/i.test(v.name.trim()))
       || voiceCache.find(v => /google español/i.test(v.name));
@@ -2477,7 +2678,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       utter.pitch = natural ? 1 : 1.05;
       // Si el navegador no tiene voz del género del personaje en ese idioma, se ajusta el tono
       const voiceIsMale = voice && MALE_VOICE.test(voice.name) && !/female/i.test(voice.name);
-      // (la voz Google español se deja tal cual: suena natural y así la eligió la dueña)
+      // (la voz Google español se deja tal cual: suena natural y así la eligió el dueño)
       const keepAsIs = p.lang === 'Español' && voice && /google español/i.test(voice.name);
       if (!keepAsIs && tutorGender === 'M' && !voiceIsMale) utter.pitch = 0.6;
       if (!keepAsIs && tutorGender === 'F' && voiceIsMale) utter.pitch = 1.35;

@@ -8,7 +8,7 @@ related_targets: ["public/style.css","public/app.js"]
 # OmniTutor — app (public/index.html)
 
 Scope: toda la app de una página (Idiomas, Matemáticas, Quizzes, Logros, ajustes). Modo: Operate.
-Audiencia: la dueña (adulta) y una persona en edad escolar; computador y celular. Tarea principal: conversar en un escenario de idioma y leer la corrección de cada turno. Restricciones: mismos IDs y comportamiento de app.js, claves `omni_tutor_*` intactas, sin compilación.
+Audiencia: el dueño (adulto) y una persona en edad escolar; computador y celular. Tarea principal: conversar en un escenario de idioma y leer la corrección de cada turno. Restricciones: mismos IDs y comportamiento de app.js, claves `omni_tutor_*` intactas, sin compilación.
 
 ## Direction contract
 

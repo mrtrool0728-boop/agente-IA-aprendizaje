@@ -82,6 +82,7 @@
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 15l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
       <symbol id="i-video" viewBox="0 0 24 24"><path d="M15 10l5-3v10l-5-3"/><rect x="3" y="6" width="12" height="12" rx="2"/></symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
       <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
       <symbol id="i-mic-off" viewBox="0 0 24 24"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
     </defs>
@@ -123,9 +124,9 @@
     <!-- Cifras reales de lo que trae -->
     <section class="lp-facts" data-reveal>
       <div><b>6</b><span>idiomas</span></div>
-      <div><b>90</b><span>conversaciones guiadas</span></div>
-      <div><b>3</b><span>niveles por idioma</span></div>
-      <div><b>12</b><span>ejercicios de matemáticas</span></div>
+      <div><b>162</b><span>conversaciones guiadas</span></div>
+      <div><b>60</b><span>lecciones de idiomas</span></div>
+      <div><b>36</b><span>ejercicios de matemáticas</span></div>
       <div><b>0</b><span>cuentas ni pagos</span></div>
     </section>
 
@@ -151,7 +152,7 @@
       <div class="lp-steps">
         <article class="lp-step" data-reveal style="--i:0">
           <span class="lp-step-ico"><svg class="ico"><use href="#i-lang"/></svg></span>
-          <div><h3>1. Elige idioma y situación</h3><p>Café, aeropuerto, entrevista de trabajo, hotel o charla con un amigo. Cada una es una conversación real con su personaje.</p></div>
+          <div><h3>1. Elige idioma y situación</h3><p>Café, aeropuerto, entrevista, hotel, restaurante, farmacia, tienda, transporte o charla con un amigo. Cada una es una conversación real con su personaje.</p></div>
         </article>
         <article class="lp-step" data-reveal style="--i:1">
           <span class="lp-step-ico"><svg class="ico"><use href="#i-mic"/></svg></span>
@@ -163,7 +164,7 @@
         </article>
         <article class="lp-step" data-reveal style="--i:3">
           <span class="lp-step-ico"><svg class="ico"><use href="#i-trophy"/></svg></span>
-          <div><h3>4. Sube de nivel</h3><p>Al completar las 5 situaciones pasas al siguiente nivel. En los niveles 2 y 3 la traducción y las respuestas solo aparecen si las pides.</p></div>
+          <div><h3>4. Sube de nivel</h3><p>Al completar 5 situaciones pasas al siguiente nivel. En los niveles 2 y 3 la traducción y las respuestas solo aparecen si las pides.</p></div>
         </article>
       </div>
       <button class="lp-btn lp-btn-light" data-enter data-reveal>Probar ahora</button>
@@ -347,6 +348,15 @@
           
           <div class="scenes" id="scene-grid"></div>
 
+          <!-- Lecciones para estudiar sin IA (lessons.js) -->
+          <div class="section-card-header">
+            <div>
+              <h2>3. Lecciones de vocabulario y gramática</h2>
+              <p>Estudia sin conexión: escucha cada frase y luego haz el mini quiz</p>
+            </div>
+          </div>
+          <div class="lessons" id="lesson-grid"></div>
+
           <!-- Selects nativos requeridos por app.js -->
           <div hidden>
             <select id="lang-select">
@@ -394,7 +404,7 @@
           <div class="card flashcard-interactive" id="lang-flashcard">
             <div class="flashcard-inner" id="flashcard-toggle" title="Haz clic para voltear la tarjeta y ver la traducción">
               <div class="flashcard-front">
-                <span class="flashcard-tag">💡 Vocabulario clave de este escenario</span>
+                <span class="flashcard-tag">Vocabulario clave de este escenario</span>
                 <b id="flashcard-word">"Could I please have..."</b>
                 <span class="flashcard-hint">Toca para voltear y ver traducción ↻</span>
               </div>
@@ -411,7 +421,7 @@
 
           <!-- Barra de Respuestas Rápidas para Principiantes -->
           <div class="beginner-reply-bar" id="lang-quick-replies">
-            <span class="beginner-reply-label">💡 Opciones de respuesta para responder rápido:</span>
+            <span class="beginner-reply-label">Opciones de respuesta para responder rápido:</span>
             <div class="beginner-chips-group" id="beginner-chips-group">
               <!-- Se rellenan dinámicamente según la situación -->
             </div>
@@ -457,11 +467,12 @@
           <div class="math-levels-bar">
             <span class="levels-title">Nivel educativo:</span>
             <div class="levels-pills" id="math-levels-selector">
-              <button class="level-pill active" data-level="all">🌟 Todos</button>
-              <button class="level-pill" data-level="primaria">🟢 Primaria & Aritmética</button>
-              <button class="level-pill" data-level="secundaria">🟡 Secundaria & Álgebra</button>
-              <button class="level-pill" data-level="geometria">🔵 Geometría & Pitágoras</button>
-              <button class="level-pill" data-level="logica">🟣 Lógica & Desafíos</button>
+              <button class="level-pill active" data-level="all">Todos</button>
+              <button class="level-pill" data-level="primaria">Primaria & Aritmética</button>
+              <button class="level-pill" data-level="secundaria">Secundaria & Álgebra</button>
+              <button class="level-pill" data-level="geometria">Geometría & Pitágoras</button>
+              <button class="level-pill" data-level="logica">Lógica & Desafíos</button>
+              <button class="level-pill" data-level="universidad">Universidad</button>
             </div>
           </div>
 
@@ -483,7 +494,7 @@
                     <img class="avatar" data-avatar="math" alt="Yeison">
                     <div class="msg-col">
                       <div class="bubble">
-                        <p>¡Hola! Soy Yeison, tu profesor de matemáticas. 📐</p>
+                        <p>¡Hola! Soy Yeison, tu profesor de matemáticas.</p>
                         <p>¿Qué tema quieres dominar hoy? Puedes hacer clic en cualquiera de los ejercicios de la derecha, o escribirme directamente tu problema.</p>
                       </div>
                     </div>
@@ -638,10 +649,10 @@
                     <span class="math-tag tag-surprise">Desafío Diario</span>
                     <span class="math-xp-tag">+40 XP</span>
                   </div>
-                  <h3>⚡ Acertijo Mental de Yeison</h3>
+                  <h3>Acertijo Mental de Yeison</h3>
                   <div class="math-card-formula">$$2, 4, 8, 16, \dots ?$$</div>
                   <p>Pon a prueba tus patrones deductivos con un reto de agilidad mental.</p>
-                  <button class="btn btn-primary btn-full">Aceptar el reto 🚀</button>
+                  <button class="btn btn-primary btn-full">Aceptar el reto</button>
                 </div>
               </div>
 
@@ -677,8 +688,8 @@
               <label class="field">
                 <span>Materia</span>
                 <select id="quiz-subject">
-                  <option value="math">📐 Matemáticas</option>
-                  <option value="language">🌍 Idiomas (Inglés)</option>
+                  <option value="math">Matemáticas</option>
+                  <option value="language">Idiomas (Inglés)</option>
                 </select>
               </label>
               
@@ -697,12 +708,12 @@
             <div class="topic-cards-group">
               <span class="topic-cards-label">Temas populares listos:</span>
               <div class="topics">
-                <button class="chip topic-tag" data-subj="math" data-top="Ecuaciones Lineales">📐 Ecuaciones</button>
-                <button class="chip topic-tag" data-subj="math" data-top="Fracciones y Porcentajes">🍰 Fracciones</button>
-                <button class="chip topic-tag" data-subj="math" data-top="Teorema de Pitágoras y Geometría">📐 Pitágoras</button>
-                <button class="chip topic-tag" data-subj="language" data-top="Present Perfect vs Past Simple">🇬🇧 Present Perfect</button>
-                <button class="chip topic-tag" data-subj="language" data-top="Phrasal Verbs cotidianos">🇬🇧 Phrasal verbs</button>
-                <button class="chip topic-tag" data-subj="language" data-top="Falsos Amigos (False Friends)">🇬🇧 Falsos amigos</button>
+                <button class="chip topic-tag" data-subj="math" data-top="Ecuaciones Lineales">Ecuaciones</button>
+                <button class="chip topic-tag" data-subj="math" data-top="Fracciones y Porcentajes">Fracciones</button>
+                <button class="chip topic-tag" data-subj="math" data-top="Teorema de Pitágoras y Geometría">Pitágoras</button>
+                <button class="chip topic-tag" data-subj="language" data-top="Present Perfect vs Past Simple">Present Perfect</button>
+                <button class="chip topic-tag" data-subj="language" data-top="Phrasal Verbs cotidianos">Phrasal verbs</button>
+                <button class="chip topic-tag" data-subj="language" data-top="Falsos Amigos (False Friends)">Falsos amigos</button>
               </div>
             </div>
           </div>
@@ -724,7 +735,7 @@
 
             <div class="quiz-explain card" id="quiz-explanation-box" style="display: none;">
               <div class="quiz-explain-head">
-                <span class="explain-badge">💡 Explicación pedagógica de Yeison</span>
+                <span class="explain-badge">Explicación pedagógica de Yeison</span>
               </div>
               <div id="quiz-explanation-text"></div>
               <button id="btn-next-question" class="btn btn-primary">
@@ -741,7 +752,7 @@
             <p id="quiz-summary-score">4 de 4 correctas</p>
             <b class="summary-xp" id="quiz-summary-xp">+100 XP</b>
             <p class="summary-praise">¡Excelente trabajo! Con Yeison aprendes cada día más rápido.</p>
-            <button id="btn-restart-quiz" class="btn btn-primary">Hacer otro quiz 🚀</button>
+            <button id="btn-restart-quiz" class="btn btn-primary">Hacer otro quiz</button>
           </div>
 
         </div>
@@ -937,17 +948,30 @@
         </div>
 
         <div class="summary-feedback-box" id="summary-call-feedback">
-          <b>💡 Retroalimentación de Yeison:</b>
+          <b>Retroalimentación de Yeison:</b>
           <p>Tu pronunciación y fluidez mejoran con cada minuto de práctica oral. ¡Sigue así!</p>
         </div>
 
         <button id="btn-close-call-summary" class="btn btn-primary btn-full">
-          Terminar y Guardar Progreso 🚀
+          Terminar y Guardar Progreso
         </button>
       </div>
     </div>
 
     <!-- Modal de Conexión IA -->
+    <div class="modal-backdrop" id="lesson-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="lesson-title">
+      <div class="modal card lesson-modal">
+        <div class="modal-head">
+          <div class="modal-title-wrap">
+            <h2 id="lesson-title">Lección</h2>
+            <span class="modal-sub" id="lesson-sub"></span>
+          </div>
+          <button class="btn-icon" id="btn-close-lesson" aria-label="Cerrar la lección"><svg class="ico"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="modal-body" id="lesson-body"></div>
+      </div>
+    </div>
+
     <div class="modal-backdrop" id="settings-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="settings-title">
       <div class="modal card">
         <div class="modal-head">
@@ -1013,7 +1037,10 @@
   <script src="gate.js?v=dev"></script>
   <script src="dialogues.js?v=dev"></script>
   <script src="dialogues-levels.js?v=dev"></script>
+  <script src="dialogues-more.js?v=dev"></script>
+  <script src="lessons.js?v=dev"></script>
   <script src="math-coach.js?v=dev"></script>
+  <script src="tutors.js?v=dev"></script>
   <script src="app.js?v=dev"></script>
   <script src="landing.js?v=dev"></script>
 </body>

@@ -8,7 +8,7 @@ web
 
 ## Users
 
-La dueña (adulta) y una persona en edad escolar de su entorno. Estudian por su cuenta: practican un idioma conversando en escenarios de la vida real y resuelven ejercicios de matemáticas con guía, a veces a partir de una foto del cuaderno. Lo abren tanto en el computador como en el celular. Más adelante podría compartirse con otras personas.
+El dueño (adulto) y una persona en edad escolar de su entorno. Estudian por su cuenta: practican un idioma conversando en escenarios de la vida real y resuelven ejercicios de matemáticas con guía, a veces a partir de una foto del cuaderno. Lo abren tanto en el computador como en el celular. Más adelante podría compartirse con otras personas.
 
 ## Product Purpose
 
@@ -33,7 +33,7 @@ Idiomas es el uso principal. Lo que lo distingue: cada respuesta del personaje l
 ## Brand Commitments
 
 - Nombre actual: OmniTutor IA.
-- Referencias visuales elegidas por la dueña: Gliglish (https://gliglish.com/intl/es) y Praktika (https://start.praktika.ai/). Rechazó el estilo "correo aéreo" y el oscuro con neón original.
+- Referencias visuales elegidas por el dueño: Gliglish (https://gliglish.com/intl/es) y Praktika (https://start.praktika.ai/). Rechazó el estilo "correo aéreo" y el oscuro con neón original.
 - Textos en español; tuteo.
 
 ## Evidence on Hand

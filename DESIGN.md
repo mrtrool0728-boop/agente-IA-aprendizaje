@@ -95,7 +95,7 @@ components:
 
 **Creative North Star: "Un tutor con cara, en una app limpia"**
 
-Estilo de apps de idiomas con IA como Gliglish y Praktika, que la dueña eligió como referencia: fondo blanco o gris muy claro, índigo como color de marca, tipografía Inter, esquinas redondeadas y mucho aire. El protagonista es el tutor: cada situación tiene un personaje con avatar sonriente, y la conversación se siente como chatear con él.
+Estilo de apps de idiomas con IA como Gliglish y Praktika, que el dueño eligió como referencia: fondo blanco o gris muy claro, índigo como color de marca, tipografía Inter, esquinas redondeadas y mucho aire. El protagonista es el tutor: cada situación tiene un personaje con avatar sonriente, y la conversación se siente como chatear con él.
 
 Idiomas funciona en dos pasos, como Praktika: primero eliges el idioma en fichas con bandera (nombre nativo y en español) y la situación en tarjetas con el personaje; después entras al chat. La corrección aparece pegada a tu propia frase, como en Gliglish.
 
