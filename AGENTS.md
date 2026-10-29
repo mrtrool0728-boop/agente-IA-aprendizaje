@@ -116,3 +116,11 @@ El dueño pidió que la app se vea de calidad, no escolar. Las referencias de pa
   - Si la primera frase no arranca en 2,5 s, se repite con la voz del sistema.
   - El español nunca cambia de tono, porque suena a robot.
   - "Google español" no existe en iPhone; allá se usa la mejor voz instalada.
+- **Voz del tutor en iPhone (audio normal):** en algunos iPhone la voz del navegador (`speechSynthesis`) dice que habla, pero no suena.
+  - Por eso en iPhone el tutor habla con audio normal: `speakPhone` reproduce la voz de Google Traductor (`translate.googleapis.com/translate_tts?client=gtx`, sin clave) en un solo `<audio>` (`phoneAudio`).
+  - Ese `<audio>` se desbloquea con el primer toque (`unlockSpeech`). Si falla, la app vuelve sola a `speakBrowser`.
+  - Google solo responde si el pedido no lleva "Referer": por eso `index.html` tiene `<meta name="referrer" content="no-referrer">`. No lo quites.
+  - El servicio acepta frases cortas: `phoneChunks` las parte en trozos de hasta 180 letras.
+- **Micrófono en iPhone:** solo funciona en Safari, porque Apple no lo permite en Chrome. Si el dictado se corta con "aborted", se reintenta una vez.
+  - La sesión de audio pasa a `play-and-record` mientras escucha y vuelve a `playback` al terminar, para que el tutor no suene por el auricular de llamadas.
+- **Prueba de audio y micrófono:** está en Configuración. Con `?diagnostico` en la dirección se abre directo y muestra en pantalla qué responde el navegador.
