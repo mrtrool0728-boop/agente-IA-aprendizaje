@@ -2760,7 +2760,9 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   // Control de Micrófono (Hablar en vivo)
   btnCallMic.addEventListener('click', () => {
     if (!SpeechRecognition) {
-      alert('Tu navegador no soporta reconocimiento de voz nativo. Te recomendamos usar Google Chrome o Microsoft Edge.');
+      setCaption('Aviso', IS_IOS
+        ? 'En iPhone el reconocimiento de voz solo funciona en Safari. Abre esta página en Safari para hablar, o toca las respuestas de abajo.'
+        : 'Tu navegador no reconoce la voz. Usa Google Chrome o Microsoft Edge, o toca las respuestas de abajo.');
       return;
     }
 
@@ -2843,10 +2845,19 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
   }
 
-  // Qué decirle a la persona según el motivo por el que el micrófono no funcionó
+  // Qué decirle a la persona según el motivo por el que el micrófono no funcionó y el equipo que usa
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IOS_OTHER_BROWSER = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+  const IS_ANDROID = /Android/.test(navigator.userAgent);
+  function micBlockedHelp() {
+    if (IOS_OTHER_BROWSER) return 'En iPhone, Chrome y otros navegadores no dejan reconocer la voz. Abre esta misma página en Safari para hablar. Mientras tanto puedes tocar las respuestas de abajo.';
+    if (IS_IOS) return 'Safari bloqueó el micrófono. Toca "aA" en la barra de dirección, entra a Configuración del sitio web y en Micrófono elige Permitir. Revisa también que el dictado esté activo (Ajustes, General, Teclado, Activar dictado). Luego recarga la página.';
+    if (IS_ANDROID) return 'El navegador bloqueó el micrófono. Toca el ícono junto a la dirección, entra a Permisos, permite el Micrófono y recarga la página.';
+    return `El navegador bloqueó el micrófono. Toca el candado junto a la dirección (${location.host || 'esta página'}), permite el micrófono y recarga la página.`;
+  }
   const MIC_ERRORS = {
-    'not-allowed': 'El navegador bloqueó el micrófono. Toca el candado junto a la dirección (localhost:3000), permite el micrófono y recarga la página.',
-    'service-not-allowed': 'El navegador no deja usar el reconocimiento de voz en esta página. Prueba en Google Chrome.',
+    get 'not-allowed'() { return micBlockedHelp(); },
+    get 'service-not-allowed'() { return IS_IOS ? micBlockedHelp() : 'El navegador no deja usar el reconocimiento de voz en esta página. Prueba en Google Chrome.'; },
     'audio-capture': 'No encuentro un micrófono. Revisa que esté conectado y que Windows le dé permiso al navegador.',
     'network': 'El reconocimiento de voz necesita internet y no pudo conectarse. Revisa tu conexión o prueba en Google Chrome.',
     'no-speech': 'No escuché nada. Toca Hablar y habla apenas se ponga rojo el botón.',
