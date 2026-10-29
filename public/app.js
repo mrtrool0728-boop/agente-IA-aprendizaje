@@ -1904,6 +1904,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     const s = window.speechSynthesis;
     if (!s) { diag('Este navegador no tiene voz.'); return; }
     diagInfo();
+    if (IS_IOS) setAudioSession('playback');
     s.cancel();
     const u = new SpeechSynthesisUtterance(useVoice ? 'Hola, soy el Profe Yeison. ¿Me escuchas bien?' : 'Hola, esta es una prueba de voz.');
     u.lang = 'es-ES';
@@ -1921,6 +1922,14 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     s.speak(u);
     setTimeout(() => { if (s.speaking || s.pending) diag(`Estado: hablando=${s.speaking}, en cola=${s.pending}, en pausa=${s.paused}`); }, 1500);
   }
+  document.getElementById('diag-tone')?.addEventListener('click', () => {
+    if (IS_IOS) setAudioSession('playback');
+    const a = new Audio(toneUrl(660, 600, 0.5));
+    a.setAttribute('playsinline', '');
+    a.onplaying = () => diag('El pitido EMPEZÓ a sonar.');
+    a.onended = () => diag('El pitido TERMINÓ.');
+    a.play().then(() => diag(`Reproduciendo pitido · sesión de audio: ${navigator.audioSession ? navigator.audioSession.type : 'no disponible'}`)).catch(err => diag('El pitido dio ERROR: ' + err.message));
+  });
   document.getElementById('diag-voice')?.addEventListener('click', () => diagSpeak(false));
   document.getElementById('diag-voice-tutor')?.addEventListener('click', () => diagSpeak(true));
   document.getElementById('diag-mic')?.addEventListener('click', () => {
@@ -1938,7 +1947,10 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         const res = e.results[e.results.length - 1];
         diag(`Micrófono oyó${res.isFinal ? '' : ' (parcial)'}: "${res[0].transcript}"`);
       };
-      r.onerror = (e) => diag(`Micrófono dio ERROR: ${e.error}${e.message ? ' · ' + e.message : ''}`);
+      r.onerror = (e) => {
+        diag(`Micrófono dio ERROR: ${e.error}${e.message ? ' · ' + e.message : ''}`);
+        if (e.error === 'aborted' && !r.__retried) { r.__retried = true; diag('Reintentando una vez…'); setTimeout(() => { try { r.start(); } catch (err) { diag('No se pudo reintentar: ' + err.message); } }, 400); }
+      };
       r.onend = () => diag('Micrófono: terminó.');
       r.start();
       diag('Pidiendo el micrófono…');
@@ -2800,11 +2812,38 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
   // iPhone y iPad: Safari solo deja hablar a la página después de una voz iniciada con un toque.
   // Con el primer toque se dice una frase vacía en silencio y desde ahí el tutor ya puede hablar.
+  // Un pitido o un silencio generado en el momento (WAV), para abrir el canal de audio del iPhone y para la prueba de sonido
+  function toneUrl(freq, ms, volume) {
+    const rate = 8000;
+    const n = Math.floor(rate * ms / 1000);
+    const buf = new ArrayBuffer(44 + n * 2);
+    const dv = new DataView(buf);
+    const w = (o, s) => [...s].forEach((c, i) => dv.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+    dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+    dv.setUint32(24, rate, true); dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+    w(36, 'data'); dv.setUint32(40, n * 2, true);
+    for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.sin(2 * Math.PI * freq * i / rate) * 32767 * volume, true);
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+  // iPhone (Safari 17+): el audio de la página como "reproducción", así no lo apaga el modo silencio
+  function setAudioSession(type) {
+    try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (e) { /* no disponible */ }
+  }
+
   let speechUnlocked = false;
   let unlockPending = false;
   function unlockSpeech() {
     if (speechUnlocked || !('speechSynthesis' in window)) return;
     speechUnlocked = true;
+    if (IS_IOS) {
+      setAudioSession('playback');
+      try {
+        const a = new Audio(toneUrl(440, 120, 0));
+        a.setAttribute('playsinline', '');
+        a.play().catch(() => {});
+      } catch (e) { /* sin audio */ }
+    }
     try {
       const u = new SpeechSynthesisUtterance(' ');
       u.volume = 0;
@@ -2956,7 +2995,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     }
   });
 
-  function startListening() {
+  // retry: en iPhone el dictado a veces se corta al empezar ("aborted · Retry"); se reintenta solo una vez
+  function startListening(retry = 0) {
     try {
       stopSpeech();
       recognitionInstance = new SpeechRecognition();
@@ -3008,6 +3048,12 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         // Si ya había oído algo, se usa en vez de perder la respuesta
         if (partial && (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'network')) { finish([partial], 0.6); return; }
         gotResult = true;
+        if (IS_IOS && e.error === 'aborted' && retry < 1 && callActive) {
+          stopListening();
+          setCaption('Tú', 'Un momento, vuelvo a encender el micrófono…');
+          setTimeout(() => { if (callActive) startListening(retry + 1); }, 400);
+          return;
+        }
         stopListening();
         setCaption('Aviso', MIC_ERRORS[e.error] || `El micrófono falló (${e.error}). Toca Hablar de nuevo o elige una respuesta.`);
       };
@@ -3020,6 +3066,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         if (!gotResult) setCaption('Aviso', MIC_ERRORS['no-speech']);
       };
 
+      if (IS_IOS) setAudioSession('play-and-record');
       rec.start();
     } catch (err) {
       console.error('No se pudo iniciar SpeechRecognition:', err);
@@ -3047,6 +3094,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
 
   function stopListening() {
     isListening = false;
+    // Al dejar de escuchar, el audio vuelve a ser de reproducción (si no, en iPhone el tutor suena bajito o no suena)
+    if (IS_IOS) setAudioSession('playback');
     btnCallMic.classList.remove('listening');
     btnCallMicLabel.textContent = 'Hablar';
     if (recognitionInstance) {
