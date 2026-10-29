@@ -2412,3 +2412,13 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .lite .flag-tile .flag-cloth img, .lite .flag-cloth::after, .lite .face-inner, .lite .face-photo img { animation: none; }
 .lite .face-real.talking img { animation: photo-talk .9s ease-in-out infinite; transform-origin: 50% 60%; }
 .lite .lp-in { animation-duration: .3s; }
+
+/* Prueba de audio y micrófono (Configuración) */
+.diag-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.diag-actions .btn { flex: 1 1 140px; height: 40px; }
+.diag-log {
+  min-height: 60px; max-height: 220px; overflow: auto; margin: 0;
+  padding: 10px 12px; border-radius: 10px; background: #f4f4f5; color: var(--ink);
+  font: 500 .78rem/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+}
+.diag-log:empty { display: none; }

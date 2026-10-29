@@ -1,6 +1,10 @@
 // Modo liviano para equipos de poca capacidad: sin robot 3D, sin videos en las tarjetas y con menos animaciones.
 // Se elige en Configuración (omni_tutor_perf: auto | lite | full). En "auto" se decide por la memoria del equipo,
 // el ahorro de datos y, si no basta, midiendo cuántos cuadros por segundo logra dibujar al cargar.
+// Guarda los errores de la página desde el principio, para mostrarlos en la prueba de audio (Configuración)
+window.__pageErrors = [];
+window.addEventListener('error', (e) => window.__pageErrors.push(`${e.message} (${(e.filename || '').split('/').pop()}:${e.lineno})`));
+
 (function () {
   const root = document.documentElement;
   let pref = 'auto';

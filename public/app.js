@@ -1879,6 +1879,82 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   }
 
   // El avatar 3D es opcional (Configuración): en algunas tarjetas de video se ve incompleto
+  // ---- Prueba de audio y micrófono (Configuración): escribe en pantalla lo que responde el navegador ----
+  const diagLog = document.getElementById('diag-log');
+  const diag = (msg) => {
+    if (!diagLog) return;
+    const t = new Date().toLocaleTimeString('es', { hour12: false });
+    diagLog.textContent += `${t}  ${msg}\n`;
+    diagLog.scrollTop = diagLog.scrollHeight;
+  };
+  window.addEventListener('error', (e) => diag(`ERROR de la página: ${e.message} (${(e.filename || '').split('/').pop()}:${e.lineno})`));
+  window.addEventListener('unhandledrejection', (e) => diag(`ERROR de la página: ${e.reason?.message || e.reason}`));
+  function diagInfo() {
+    const ua = navigator.userAgent;
+    const browser = /CriOS/.test(ua) ? 'Chrome' : /FxiOS/.test(ua) ? 'Firefox' : /EdgiOS|Edg\//.test(ua) ? 'Edge' : /Safari/.test(ua) && !/Chrome/.test(ua) ? 'Safari' : /Chrome/.test(ua) ? 'Chrome' : 'otro';
+    const voices = window.speechSynthesis?.getVoices() || [];
+    const es = voices.filter(v => /^es/i.test(v.lang));
+    diag(`Equipo: ${IS_IOS ? 'iPhone/iPad' : IS_ANDROID ? 'Android' : 'computador'} · navegador: ${browser} · modo: ${document.documentElement.classList.contains('lite') ? 'liviano' : 'completo'}`);
+    diag(`Voz del navegador: ${'speechSynthesis' in window ? 'sí' : 'NO'} · voces: ${voices.length} (español: ${es.length}${es.length ? ': ' + es.slice(0, 4).map(v => v.name).join(', ') : ''})`);
+    diag(`Reconocimiento de voz: ${SpeechRecognition ? 'sí' : 'NO'} · voz desbloqueada: ${speechUnlocked ? 'sí' : 'no'} · Azure: ${azureReady() ? 'sí' : 'no'}`);
+    const errs = window.__pageErrors || [];
+    diag(errs.length ? `Errores al cargar: ${errs.slice(-3).join(' | ')}` : 'Errores al cargar: ninguno');
+  }
+  function diagSpeak(useVoice) {
+    const s = window.speechSynthesis;
+    if (!s) { diag('Este navegador no tiene voz.'); return; }
+    diagInfo();
+    s.cancel();
+    const u = new SpeechSynthesisUtterance(useVoice ? 'Hola, soy el Profe Yeison. ¿Me escuchas bien?' : 'Hola, esta es una prueba de voz.');
+    u.lang = 'es-ES';
+    if (useVoice) {
+      const v = pickVoice('es-MX', 'M');
+      if (v) u.voice = v;
+      diag(`Voz elegida por la app: ${v ? `${v.name} (${v.lang})` : 'ninguna, se usa la del sistema'}`);
+    } else {
+      diag('Probando con la voz del sistema…');
+    }
+    u.onstart = () => diag('La voz EMPEZÓ a sonar.');
+    u.onend = () => diag('La voz TERMINÓ.');
+    u.onerror = (e) => diag(`La voz dio ERROR: ${e.error}`);
+    activeUtterances.push(u);
+    s.speak(u);
+    setTimeout(() => { if (s.speaking || s.pending) diag(`Estado: hablando=${s.speaking}, en cola=${s.pending}, en pausa=${s.paused}`); }, 1500);
+  }
+  document.getElementById('diag-voice')?.addEventListener('click', () => diagSpeak(false));
+  document.getElementById('diag-voice-tutor')?.addEventListener('click', () => diagSpeak(true));
+  document.getElementById('diag-mic')?.addEventListener('click', () => {
+    diagInfo();
+    if (!SpeechRecognition) { diag('Este navegador no reconoce voz.'); return; }
+    stopSpeech();
+    try {
+      const r = new SpeechRecognition();
+      r.lang = 'es-ES';
+      r.interimResults = true;
+      r.onstart = () => diag('Micrófono: EMPEZÓ a escuchar. Di algo…');
+      r.onaudiostart = () => diag('Micrófono: está llegando audio.');
+      r.onspeechstart = () => diag('Micrófono: detectó voz.');
+      r.onresult = (e) => {
+        const res = e.results[e.results.length - 1];
+        diag(`Micrófono oyó${res.isFinal ? '' : ' (parcial)'}: "${res[0].transcript}"`);
+      };
+      r.onerror = (e) => diag(`Micrófono dio ERROR: ${e.error}${e.message ? ' · ' + e.message : ''}`);
+      r.onend = () => diag('Micrófono: terminó.');
+      r.start();
+      diag('Pidiendo el micrófono…');
+    } catch (err) {
+      diag(`No se pudo encender el micrófono: ${err.message}`);
+    }
+  });
+  // Con ?diagnostico en la dirección se abre Configuración directo en la prueba
+  if (/[?&#]diagnostico/.test(location.href)) {
+    setTimeout(() => {
+      document.getElementById('btn-open-settings')?.click();
+      document.getElementById('diag-section')?.scrollIntoView();
+      diagInfo();
+    }, 600);
+  }
+
   // Rendimiento: automático, completo o liviano (perf.js lo aplica al cargar la página)
   const perfSelect = document.getElementById('perf-select');
   const perfStatus = document.getElementById('perf-status');

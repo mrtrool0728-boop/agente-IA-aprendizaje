@@ -1005,6 +1005,16 @@
             </label>
           </div>
 
+          <!-- Prueba de audio y micrófono: muestra en pantalla qué responde el navegador -->
+          <h3 class="settings-section" id="diag-section">Prueba de audio y micrófono</h3>
+          <p class="hint">Si el tutor no se oye o no te entiende, toca estos botones y envía una captura del resultado.</p>
+          <div class="diag-actions">
+            <button type="button" class="btn btn-soft" id="diag-voice">Probar voz</button>
+            <button type="button" class="btn btn-soft" id="diag-voice-tutor">Probar voz del tutor</button>
+            <button type="button" class="btn btn-soft" id="diag-mic">Probar micrófono</button>
+          </div>
+          <pre class="diag-log" id="diag-log" aria-live="polite"></pre>
+
           <!-- Rendimiento (perf.js) -->
           <h3 class="settings-section">Rendimiento</h3>
           <label class="field">
