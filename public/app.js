@@ -110,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { value: 'Japonés', native: '日本語', flag: 'jp' }
   ];
 
+  // Equipo: iPhone y Android necesitan ajustes propios para el micrófono y la voz
+  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IOS_OTHER_BROWSER = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+  const IS_ANDROID = /Android/.test(navigator.userAgent);
   const flagUrl = (code) => `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${code}.svg`;
   // Rasgos según el género del personaje: peinados de mujer o de hombre y pelo de colores naturales (sin canas)
   const FEMALE_NAMES = ['Emma', 'Sarah', 'Amélie', 'Chloé', 'Claudia', 'Giulia', 'Sofia', 'Sakura'];
@@ -2423,7 +2427,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     if (base === 'es') {
       // 1) La que eligió la persona en Configuración
       const chosen = localStorage.getItem(VOICE_ES_KEY);
-      const saved = chosen && voiceCache.find(v => v.name === chosen);
+      const saved = chosen && voiceCache.find(v => v.name === chosen && !(IS_IOS && (v.localService === false || /enhanced|premium|mejorad|siri/i.test(v.name))));
       if (saved) return saved;
       // 2) Por defecto, "Google español": la más fluida y la que menos suena a robot
       const google = defaultSpanishVoice();
@@ -2435,6 +2439,8 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     let best = null;
     let bestScore = -Infinity;
     voiceCache.forEach(v => {
+      // iPhone lista voces "mejoradas" o "premium" que a veces no están descargadas y no suenan
+      if (IS_IOS && (v.localService === false || /enhanced|premium|mejorad|siri/i.test(v.name))) return;
       const lang = v.lang.replace('_', '-');
       const multi = MULTILINGUAL_VOICE.test(v.name);
       if (!lang.toLowerCase().startsWith(base) && !(multi && base === 'es')) return;
@@ -2658,9 +2664,18 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   }
 
   // Detiene cualquier voz en curso (Azure o navegador)
+  // En iPhone, cancelar cuando no hay nada sonando (o mientras se desbloquea la voz) deja mudas las frases siguientes
+  function cancelSynth() {
+    const s = window.speechSynthesis;
+    if (!s) return false;
+    if (IS_IOS && (unlockPending || (!s.speaking && !s.pending))) return false;
+    s.cancel();
+    return true;
+  }
+
   function stopSpeech() {
     speakToken++;
-    window.speechSynthesis?.cancel();
+    cancelSynth();
     if (azureAudio) { azureAudio.pause(); azureAudio = null; }
     azureTimers.forEach(clearTimeout);
     azureTimers = [];
@@ -2669,14 +2684,20 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   // iPhone y iPad: Safari solo deja hablar a la página después de una voz iniciada con un toque.
   // Con el primer toque se dice una frase vacía en silencio y desde ahí el tutor ya puede hablar.
   let speechUnlocked = false;
+  let unlockPending = false;
   function unlockSpeech() {
     if (speechUnlocked || !('speechSynthesis' in window)) return;
     speechUnlocked = true;
     try {
       const u = new SpeechSynthesisUtterance(' ');
       u.volume = 0;
+      unlockPending = true;
+      const done = () => { unlockPending = false; };
+      u.onend = done;
+      u.onerror = done;
+      setTimeout(done, 1200);
       window.speechSynthesis.speak(u);
-    } catch (e) { /* sin voz */ }
+    } catch (e) { unlockPending = false; }
   }
   ['touchend', 'click'].forEach(ev => document.addEventListener(ev, unlockSpeech, { capture: true, passive: true }));
 
@@ -2693,16 +2714,37 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     else speakBrowser(queue, onDone);
   }
 
-  function speakBrowser(queue, onDone) {
+  // plainVoice: sin elegir voz (la del sistema para ese idioma). Se usa en iPhone si la elegida no suena.
+  function speakBrowser(queue, onDone, plainVoice = false) {
     if (!('speechSynthesis' in window)) { setTalking(false); onDone?.(); return; }
-    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    const token = speakToken;
+    const cancelled = cancelSynth();
     activeUtterances.length = 0;
-    queue.forEach((p, i) => {
+    let started = false;
+    let retried = false;
+    // iPhone: si la primera frase no arranca, se repite todo con la voz del sistema
+    const retry = () => {
+      if (retried || started || plainVoice || token !== speakToken) return;
+      retried = true;
+      synth.cancel();
+      setTimeout(() => { if (token === speakToken) speakBrowser(queue, onDone, true); }, 150);
+    };
+    const run = () => {
+      if (token !== speakToken) return;
+      queue.forEach((p, i) => speakOne(p, i));
+      if (IS_IOS) {
+        // En iPhone la voz a veces queda en pausa después de usar el micrófono
+        setTimeout(() => synth.resume(), 50);
+        if (!plainVoice) setTimeout(retry, 2500);
+      }
+    };
+    const speakOne = (p, i) => {
       const text = speechText(p.text);
       const utter = new SpeechSynthesisUtterance(text);
       const code = voiceCode(p.lang);
       utter.lang = code;
-      const voice = pickVoice(code, tutorGender);
+      const voice = plainVoice ? null : pickVoice(code, tutorGender);
       if (voice) utter.voice = voice;
       if (voice && p.lang !== 'Español') characterVoice = voice;
       // Las voces naturales ya suenan bien a velocidad normal; las básicas, un poco más lentas
@@ -2716,18 +2758,22 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
       if (!keepAsIs && tutorGender === 'M' && !voiceIsMale) utter.pitch = 0.6;
       if (!keepAsIs && tutorGender === 'F' && voiceIsMale) utter.pitch = 1.35;
       lipSync(utter, text, p.lang);
-      utter.onstart = () => setTalking(true);
+      utter.onstart = () => { started = true; setTalking(true); };
       const finish = () => {
         if (i === queue.length - 1) { setTalking(false); onDone?.(); }
       };
       utter.onend = finish;
-      utter.onerror = finish;
+      utter.onerror = () => {
+        if (IS_IOS && i === 0 && !started && !plainVoice) { retry(); return; }
+        finish();
+      };
       // Safari a veces suelta las frases antes de decirlas si nadie las guarda
       activeUtterances.push(utter);
-      window.speechSynthesis.speak(utter);
-    });
-    // En iPhone la voz a veces queda en pausa después de usar el micrófono
-    if (IS_IOS) setTimeout(() => window.speechSynthesis.resume(), 50);
+      synth.speak(utter);
+    };
+    // En iPhone, hablar justo después de cancelar a veces no suena: se espera un momento
+    if (IS_IOS && cancelled) setTimeout(run, 150);
+    else run();
   }
   const activeUtterances = [];
 
@@ -2866,9 +2912,6 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   }
 
   // Qué decirle a la persona según el motivo por el que el micrófono no funcionó y el equipo que usa
-  const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const IOS_OTHER_BROWSER = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
-  const IS_ANDROID = /Android/.test(navigator.userAgent);
   function micBlockedHelp() {
     if (IOS_OTHER_BROWSER) return 'En iPhone, Chrome y otros navegadores no dejan reconocer la voz. Abre esta misma página en Safari para hablar. Mientras tanto puedes tocar las respuestas de abajo.';
     if (IS_IOS) return 'Safari bloqueó el micrófono. Toca "aA" en la barra de dirección, entra a Configuración del sitio web y en Micrófono elige Permitir. Revisa también que el dictado esté activo (Ajustes, General, Teclado, Activar dictado). Luego recarga la página.';
