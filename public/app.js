@@ -1902,6 +1902,13 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
   }
   function diagSpeak(useVoice) {
     const s = window.speechSynthesis;
+    if (useVoice && usePhoneTts()) {
+      // En iPhone el tutor habla con audio normal: se prueba ese mismo camino
+      diagInfo();
+      diag('Probando la voz del tutor por audio (como en la videollamada)…');
+      speakSequence([{ text: 'Hola, soy el Profe Yeison. ¿Me escuchas bien?', lang: 'Español' }], () => diag('La voz por audio TERMINÓ.'));
+      return;
+    }
     if (!s) { diag('Este navegador no tiene voz.'); return; }
     diagInfo();
     if (IS_IOS) setAudioSession('playback');
@@ -2792,6 +2799,68 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     onDone?.();
   }
 
+  // ---- iPhone: la voz del navegador dice que habla pero no suena en algunos equipos.
+  // Ahí el tutor habla con audio normal (voz de Google Traductor, sin clave), con un solo <audio>
+  // que se desbloquea con el primer toque (unlockSpeech). Si falla, vuelve a la voz del navegador.
+  const PHONE_TTS_LANG = { 'Español': 'es', 'Inglés': 'en-US', 'Francés': 'fr', 'Alemán': 'de', 'Italiano': 'it', 'Portugués': 'pt-BR', 'Japonés': 'ja' };
+  const phoneAudio = new Audio();
+  phoneAudio.setAttribute('playsinline', '');
+  let phoneTtsFailed = false;
+  const usePhoneTts = () => IS_IOS && !phoneTtsFailed;
+
+  // El servicio acepta frases cortas: se parten por comas o espacios si pasan de 180 letras
+  function phoneChunks(text) {
+    const out = [];
+    let rest = text.trim();
+    while (rest.length > 180) {
+      let cut = rest.lastIndexOf(',', 180);
+      if (cut < 60) cut = rest.lastIndexOf(' ', 180);
+      if (cut < 1) cut = 180;
+      out.push(rest.slice(0, cut + 1).trim());
+      rest = rest.slice(cut + 1).trim();
+    }
+    if (rest) out.push(rest);
+    return out;
+  }
+
+  function playPhoneChunk(text, part, token) {
+    return new Promise((resolve, reject) => {
+      const code = PHONE_TTS_LANG[part.lang] || 'es';
+      phoneAudio.onplaying = () => {
+        if (token !== speakToken) return;
+        // El idioma que se practica, un poco más despacio
+        try { phoneAudio.playbackRate = part.lang === 'Español' ? 1 : (part.rate || 0.92); } catch (e) { /* sin control de velocidad */ }
+        setTalking(true);
+        scheduleLips(part, phoneAudio.duration);
+        if (settingsModal.style.display === 'flex') diag('Voz por audio: SONANDO.');
+      };
+      phoneAudio.onended = () => resolve();
+      phoneAudio.onerror = () => reject(new Error('el audio no cargó'));
+      phoneAudio.src = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${code}&q=${encodeURIComponent(text)}`;
+      phoneAudio.play().catch(reject);
+    });
+  }
+
+  async function speakPhone(queue, onDone) {
+    const token = speakToken;
+    for (let i = 0; i < queue.length; i++) {
+      for (const chunk of phoneChunks(queue[i].text)) {
+        try {
+          await playPhoneChunk(chunk, queue[i], token);
+        } catch (err) {
+          if (token !== speakToken) return;
+          phoneTtsFailed = true;
+          diag(`Voz por audio dio ERROR (${err.message}); uso la voz del navegador.`);
+          speakBrowser(queue.slice(i), onDone);
+          return;
+        }
+        if (token !== speakToken) return;
+      }
+    }
+    setTalking(false);
+    onDone?.();
+  }
+
   // Detiene cualquier voz en curso (Azure o navegador)
   // En iPhone, cancelar cuando no hay nada sonando (o mientras se desbloquea la voz) deja mudas las frases siguientes
   function cancelSynth() {
@@ -2806,6 +2875,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     speakToken++;
     cancelSynth();
     if (azureAudio) { azureAudio.pause(); azureAudio = null; }
+    if (!phoneAudio.paused) phoneAudio.pause();
     azureTimers.forEach(clearTimeout);
     azureTimers = [];
   }
@@ -2838,10 +2908,10 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
     speechUnlocked = true;
     if (IS_IOS) {
       setAudioSession('playback');
+      // Se reproduce un silencio en el mismo <audio> que usará el tutor: así iPhone lo deja sonar después
       try {
-        const a = new Audio(toneUrl(440, 120, 0));
-        a.setAttribute('playsinline', '');
-        a.play().catch(() => {});
+        phoneAudio.src = toneUrl(440, 120, 0);
+        phoneAudio.play().catch(() => {});
       } catch (e) { /* sin audio */ }
     }
     try {
@@ -2867,6 +2937,7 @@ TIP: Puedes responder usando una de las opciones rápidas de abajo para sonar co
         .filter(x => /[\p{L}\p{N}]/u.test(x.text)));
     if (!queue.length) { onDone?.(); return; }
     if (azureReady()) speakAzure(queue, onDone);
+    else if (usePhoneTts()) speakPhone(queue, onDone);
     else speakBrowser(queue, onDone);
   }
 
